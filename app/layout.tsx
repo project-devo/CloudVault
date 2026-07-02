@@ -2,7 +2,11 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "CloudVault - Your Personal Cloud Storage",
@@ -12,6 +16,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  themeColor: "#0A0A0F",
 };
 
 export default function RootLayout({
@@ -22,9 +27,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <body
-        className={`${inter.className} h-full bg-gray-950 text-gray-100 antialiased`}
+        className={`${inter.variable} ${inter.className} relative h-full bg-ink-950 font-sans text-ink-50 antialiased`}
       >
-        {children}
+        <div className="relative z-10">{children}</div>
       </body>
     </html>
   );

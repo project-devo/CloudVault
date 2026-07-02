@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Cloud, Eye, EyeOff, Loader2, CheckCircle } from "lucide-react";
+import { Cloud, Eye, EyeOff, Loader2, CheckCircle2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 export default function SignupPage() {
@@ -50,15 +50,23 @@ export default function SignupPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
-        <div className="card p-10 max-w-md w-full text-center">
-          <CheckCircle className="w-14 h-14 text-green-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-white mb-2">Check your email</h2>
-          <p className="text-gray-400 text-sm">
-            We sent a confirmation link to <strong className="text-white">{email}</strong>.
-            Click it to activate your CloudVault account.
+      <div className="relative flex min-h-screen items-center justify-center px-4">
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+          <div className="absolute left-1/2 top-1/3 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-accent-500/30 blur-3xl animate-pulse-soft" />
+        </div>
+        <div className="glass w-full max-w-md rounded-3xl p-10 text-center shadow-soft-lg animate-blur-in">
+          <div className="mx-auto mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500/30 to-coral-500/30 ring-1 ring-inset ring-white/10">
+            <CheckCircle2 className="h-7 w-7 text-accent-200" />
+          </div>
+          <h2 className="mb-2 text-2xl font-semibold tracking-tight text-white">
+            Check your email
+          </h2>
+          <p className="text-sm text-ink-300">
+            We sent a confirmation link to{" "}
+            <strong className="text-white">{email}</strong>. Click it to
+            activate your CloudVault account.
           </p>
-          <Link href="/auth/login" className="btn-primary inline-block mt-6 px-8 py-2.5 text-sm">
+          <Link href="/auth/login" className="btn-primary mt-6 inline-flex">
             Back to login
           </Link>
         </div>
@@ -67,20 +75,35 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <Cloud className="text-brand-500 w-8 h-8" />
-          <span className="text-2xl font-bold text-white">CloudVault</span>
-        </div>
+    <div className="relative flex min-h-screen items-center justify-center px-4 py-10">
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute -left-24 top-1/4 h-[420px] w-[420px] rounded-full bg-accent-500/30 blur-3xl animate-pulse-soft" />
+        <div className="absolute -right-24 bottom-0 h-[360px] w-[360px] rounded-full bg-coral-500/25 blur-3xl animate-pulse-soft [animation-delay:1.4s]" />
+      </div>
 
-        <div className="card p-8">
-          <h1 className="text-2xl font-bold text-white mb-1">Create your vault</h1>
-          <p className="text-gray-400 text-sm mb-8">Free forever — 1 GB included</p>
+      <div className="w-full max-w-md animate-slide-up">
+        <Link href="/" className="mb-10 flex items-center justify-center gap-2.5">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl aurora-bg shadow-glow-accent">
+            <Cloud className="h-5 w-5 text-white" strokeWidth={2.5} />
+          </div>
+          <span className="text-xl font-semibold tracking-tight text-white">
+            CloudVault
+          </span>
+        </Link>
+
+        <div className="glass rounded-3xl p-8 shadow-soft-lg animate-blur-in">
+          <h1 className="mb-1 text-2xl font-semibold tracking-tight text-white">
+            Create your vault
+          </h1>
+          <p className="mb-8 text-sm text-ink-300">
+            Free forever — 1 GB included
+          </p>
 
           <form onSubmit={handleSignup} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">Email</label>
+              <label className="mb-1.5 block text-sm font-medium text-ink-100">
+                Email
+              </label>
               <input
                 type="email"
                 required
@@ -92,7 +115,9 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">Password</label>
+              <label className="mb-1.5 block text-sm font-medium text-ink-100">
+                Password
+              </label>
               <div className="relative">
                 <input
                   type={showPass ? "text" : "password"}
@@ -105,15 +130,22 @@ export default function SignupPage() {
                 <button
                   type="button"
                   onClick={() => setShowPass(!showPass)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-400 transition-colors hover:text-white"
+                  aria-label={showPass ? "Hide password" : "Show password"}
                 >
-                  {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPass ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </button>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">Confirm password</label>
+              <label className="mb-1.5 block text-sm font-medium text-ink-100">
+                Confirm password
+              </label>
               <input
                 type="password"
                 required
@@ -125,20 +157,27 @@ export default function SignupPage() {
             </div>
 
             {error && (
-              <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 text-sm text-red-400">
+              <div className="rounded-xl border border-coral-500/30 bg-coral-500/10 px-4 py-3 text-sm text-coral-200 animate-slide-down">
                 {error}
               </div>
             )}
 
-            <button type="submit" disabled={loading} className="btn-primary w-full py-2.5 flex items-center justify-center gap-2">
-              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary w-full py-2.5"
+            >
+              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
               {loading ? "Creating account..." : "Create free account"}
             </button>
           </form>
 
-          <p className="text-center text-sm text-gray-500 mt-6">
+          <p className="mt-6 text-center text-sm text-ink-300">
             Already have an account?{" "}
-            <Link href="/auth/login" className="text-brand-500 hover:text-brand-400 font-medium">
+            <Link
+              href="/auth/login"
+              className="font-medium text-accent-300 transition-colors hover:text-accent-200"
+            >
               Sign in
             </Link>
           </p>

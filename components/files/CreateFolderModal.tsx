@@ -10,7 +10,11 @@ interface Props {
   currentFolderId: string | null;
 }
 
-export default function CreateFolderModal({ open, onClose, currentFolderId }: Props) {
+export default function CreateFolderModal({
+  open,
+  onClose,
+  currentFolderId,
+}: Props) {
   const router = useRouter();
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -51,21 +55,37 @@ export default function CreateFolderModal({ open, onClose, currentFolderId }: Pr
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
-      <div className="relative bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-sm shadow-2xl animate-slide-up">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
-          <h2 className="font-semibold text-white flex items-center gap-2">
-            <FolderPlus className="w-4 h-4 text-brand-500" />
+    <div className="sheet-backdrop">
+      <div
+        className="absolute inset-0"
+        onClick={handleClose}
+        aria-hidden
+      />
+      <div
+        className="sheet-sm relative"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
+          <h2 className="flex items-center gap-2 text-base font-semibold tracking-tight text-white">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-accent-500/20 to-coral-500/20 ring-1 ring-inset ring-white/10">
+              <FolderPlus className="h-3.5 w-3.5 text-accent-200" />
+            </div>
             New Folder
           </h2>
-          <button onClick={handleClose} className="text-gray-500 hover:text-gray-300">
-            <X className="w-5 h-5" />
+          <button
+            onClick={handleClose}
+            className="rounded-full p-2 text-ink-300 transition-all duration-200 ease-apple hover:bg-white/[0.06] hover:text-white"
+            aria-label="Close"
+          >
+            <X className="h-4 w-4" />
           </button>
         </div>
-        <form onSubmit={handleCreate} className="p-6 space-y-4">
+        <form onSubmit={handleCreate} className="space-y-4 p-5">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1.5">Folder name</label>
+            <label className="mb-1.5 block text-sm font-medium text-ink-100">
+              Folder name
+            </label>
             <input
               autoFocus
               type="text"
@@ -77,14 +97,24 @@ export default function CreateFolderModal({ open, onClose, currentFolderId }: Pr
             />
           </div>
           {error && (
-            <p className="text-sm text-red-400">{error}</p>
+            <div className="rounded-xl border border-coral-500/30 bg-coral-500/10 px-4 py-3 text-sm text-coral-200 animate-slide-down">
+              {error}
+            </div>
           )}
-          <div className="flex gap-3">
-            <button type="button" onClick={handleClose} className="btn-ghost flex-1 text-center">
+          <div className="flex gap-3 pt-1">
+            <button
+              type="button"
+              onClick={handleClose}
+              className="btn-glass flex-1"
+            >
               Cancel
             </button>
-            <button type="submit" disabled={!name.trim() || loading} className="btn-primary flex-1 flex items-center justify-center gap-2">
-              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+            <button
+              type="submit"
+              disabled={!name.trim() || loading}
+              className="btn-primary flex-1"
+            >
+              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
               Create
             </button>
           </div>

@@ -32,21 +32,35 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <Cloud className="text-brand-500 w-8 h-8" />
-          <span className="text-2xl font-bold text-white">CloudVault</span>
-        </div>
+    <div className="relative flex min-h-screen items-center justify-center px-4">
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute -left-24 top-1/4 h-[420px] w-[420px] rounded-full bg-accent-500/30 blur-3xl animate-pulse-soft" />
+        <div className="absolute -right-24 bottom-0 h-[360px] w-[360px] rounded-full bg-coral-500/25 blur-3xl animate-pulse-soft [animation-delay:1.4s]" />
+      </div>
 
-        <div className="card p-8">
-          <h1 className="text-2xl font-bold text-white mb-1">Welcome back</h1>
-          <p className="text-gray-400 text-sm mb-8">Sign in to access your vault</p>
+      <div className="w-full max-w-md animate-slide-up">
+        <Link href="/" className="mb-10 flex items-center justify-center gap-2.5">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl aurora-bg shadow-glow-accent">
+            <Cloud className="h-5 w-5 text-white" strokeWidth={2.5} />
+          </div>
+          <span className="text-xl font-semibold tracking-tight text-white">
+            CloudVault
+          </span>
+        </Link>
+
+        <div className="glass rounded-3xl p-8 shadow-soft-lg animate-blur-in">
+          <h1 className="mb-1 text-2xl font-semibold tracking-tight text-white">
+            Welcome back
+          </h1>
+          <p className="mb-8 text-sm text-ink-300">
+            Sign in to access your vault
+          </p>
 
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">Email</label>
+              <label className="mb-1.5 block text-sm font-medium text-ink-100">
+                Email
+              </label>
               <input
                 type="email"
                 required
@@ -59,7 +73,9 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">Password</label>
+              <label className="mb-1.5 block text-sm font-medium text-ink-100">
+                Password
+              </label>
               <div className="relative">
                 <input
                   type={showPass ? "text" : "password"}
@@ -73,28 +89,40 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPass(!showPass)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-400 transition-colors hover:text-white"
+                  aria-label={showPass ? "Hide password" : "Show password"}
                 >
-                  {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPass ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </button>
               </div>
             </div>
 
             {error && (
-              <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 text-sm text-red-400">
+              <div className="rounded-xl border border-coral-500/30 bg-coral-500/10 px-4 py-3 text-sm text-coral-200 animate-slide-down">
                 {error}
               </div>
             )}
 
-            <button type="submit" disabled={loading} className="btn-primary w-full py-2.5 flex items-center justify-center gap-2">
-              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary w-full py-2.5"
+            >
+              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
               {loading ? "Signing in..." : "Sign in"}
             </button>
           </form>
 
-          <p className="text-center text-sm text-gray-500 mt-6">
+          <p className="mt-6 text-center text-sm text-ink-300">
             No account?{" "}
-            <Link href="/auth/signup" className="text-brand-500 hover:text-brand-400 font-medium">
+            <Link
+              href="/auth/signup"
+              className="font-medium text-accent-300 transition-colors hover:text-accent-200"
+            >
               Create one free
             </Link>
           </p>

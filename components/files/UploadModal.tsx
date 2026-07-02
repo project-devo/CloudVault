@@ -5,7 +5,7 @@ import { type FileRejection, useDropzone } from "react-dropzone";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   AlertCircle,
-  CheckCircle,
+  CheckCircle2,
   CloudUpload,
   Loader2,
   X,
@@ -223,109 +223,117 @@ export default function UploadModal({ open, onClose }: Props) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
+    <div className="sheet-backdrop">
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0"
         onClick={handleClose}
+        aria-hidden
       />
 
-      <div className="relative flex max-h-[90vh] w-full max-w-xl flex-col overflow-hidden rounded-2xl border border-gray-800 bg-gray-900 shadow-2xl animate-slide-up">
-        <div className="flex items-center justify-between border-b border-gray-800 px-4 py-4 sm:px-6">
+      <div className="sheet relative" role="dialog" aria-modal="true">
+        <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4 sm:px-6">
           <div>
-            <h2 className="font-semibold text-white">Upload Files</h2>
-            <p className="mt-1 text-xs text-gray-500">
-              Max {formatBytes(MAX_SIZE)} per file, {formatBytes(DEFAULT_STORAGE_QUOTA_BYTES)} total
+            <h2 className="text-base font-semibold tracking-tight text-white">
+              Upload Files
+            </h2>
+            <p className="mt-0.5 text-xs text-ink-400">
+              Max {formatBytes(MAX_SIZE)} per file · {formatBytes(DEFAULT_STORAGE_QUOTA_BYTES)} total
             </p>
           </div>
           <button
             onClick={handleClose}
             disabled={isUploading}
-            className="text-gray-500 transition-colors hover:text-gray-300 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-full p-2 text-ink-300 transition-all duration-200 ease-apple hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
             aria-label="Close upload modal"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4" />
           </button>
         </div>
 
-        <div className="flex-1 space-y-4 overflow-y-auto p-4 sm:p-6">
+        <div className="flex-1 space-y-4 overflow-y-auto p-5 sm:p-6">
           <div
             {...getRootProps()}
-            className={cn(
-              "cursor-pointer rounded-xl border-2 border-dashed p-6 text-center transition-all sm:p-8",
-              isDragActive
-                ? "border-brand-500 bg-brand-500/5"
-                : "border-gray-700 hover:border-gray-600 hover:bg-gray-800/50"
-            )}
+            data-active={isDragActive}
+            className="dropzone"
           >
             <input {...getInputProps()} />
-            <CloudUpload
-              className={cn(
-                "mx-auto mb-3 h-12 w-12",
-                isDragActive ? "text-brand-500" : "text-gray-600"
-              )}
-            />
+            <div className="mx-auto mb-3 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500/20 to-coral-500/20 ring-1 ring-inset ring-white/10">
+              <CloudUpload
+                className={cn(
+                  "h-6 w-6 transition-colors duration-200",
+                  isDragActive ? "text-accent-200" : "text-ink-300"
+                )}
+              />
+            </div>
             <p className="mb-1 font-medium text-white">
               {isDragActive ? "Drop files to upload" : "Drag and drop files here"}
             </p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-ink-400">
               Tap to browse or drop files into the current folder.
             </p>
           </div>
 
           {sessionError && (
-            <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+            <div className="rounded-xl border border-coral-500/30 bg-coral-500/10 px-4 py-3 text-sm text-coral-200 animate-slide-down">
               {sessionError}
             </div>
           )}
 
           {uploads.length > 0 && (
-            <div className="space-y-2">
+            <ul className="space-y-2">
               {uploads.map((item) => (
-                <div
+                <li
                   key={item.id}
-                  className="flex items-center gap-3 rounded-lg bg-gray-800 px-4 py-3"
+                  className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-3"
                 >
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-white">
                       {item.file.name}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-ink-400">
                       {formatBytes(item.file.size)}
                     </p>
                     {item.error && (
-                      <p className="mt-1 text-xs text-red-300">{item.error}</p>
+                      <p className="mt-1 text-xs text-coral-300">
+                        {item.error}
+                      </p>
+                    )}
+                    {item.status === "uploading" && (
+                      <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                        <div className="h-full w-1/2 aurora-bg shimmer rounded-full" />
+                      </div>
                     )}
                   </div>
                   <div className="shrink-0">
                     {item.status === "pending" && (
-                      <div className="h-4 w-4 rounded-full bg-gray-600" />
+                      <div className="h-2 w-2 rounded-full bg-ink-500" />
                     )}
                     {item.status === "uploading" && (
-                      <Loader2 className="h-4 w-4 animate-spin text-brand-500" />
+                      <Loader2 className="h-4 w-4 animate-spin text-accent-300" />
                     )}
                     {item.status === "success" && (
-                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      <CheckCircle2 className="h-4 w-4 text-coral-400" />
                     )}
                     {item.status === "error" && (
-                      <AlertCircle className="h-4 w-4 text-red-400" />
+                      <AlertCircle className="h-4 w-4 text-coral-400" />
                     )}
                   </div>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           )}
         </div>
 
-        <div className="border-t border-gray-800 px-4 py-4 sm:px-6">
+        <div className="border-t border-white/[0.06] px-5 py-4 sm:px-6">
           {allDone && uploads.length > 0 && (
-            <div className="mb-3 text-sm">
+            <div className="mb-3 text-sm animate-fade-in">
               {successCount > 0 && (
-                <p className="text-green-400">
+                <p className="text-coral-300">
                   {successCount} file{successCount === 1 ? "" : "s"} uploaded successfully.
                 </p>
               )}
               {errorCount > 0 && (
-                <p className="mt-1 text-red-400">
+                <p className="mt-1 text-coral-300">
                   {errorCount} file{errorCount === 1 ? "" : "s"} failed.
                 </p>
               )}
@@ -335,10 +343,7 @@ export default function UploadModal({ open, onClose }: Props) {
           <button
             onClick={handleClose}
             disabled={isUploading}
-            className={cn(
-              "btn-primary w-full",
-              allDone && successCount > 0 && "bg-green-600 hover:bg-green-700"
-            )}
+            className="btn-primary w-full"
           >
             {isUploading ? "Uploading..." : allDone ? "Done" : "Cancel"}
           </button>

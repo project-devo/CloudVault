@@ -97,24 +97,24 @@ export default function FileExplorer({
 
   function renderFileActions(file: FileItem) {
     return (
-      <div className="absolute right-0 top-9 z-20 w-44 rounded-lg border border-gray-700 bg-gray-800 py-1 shadow-xl">
+      <div className="absolute right-0 top-9 z-20 w-44 origin-top-right rounded-xl border border-white/[0.08] bg-ink-900/90 p-1 shadow-soft-lg backdrop-blur-2xl animate-scale-in">
         <a
           href={fileDownloadHref(file.id)}
-          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:bg-gray-700"
+          className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink-100 transition-colors hover:bg-white/[0.06]"
         >
           <Download className="h-3.5 w-3.5" />
           Download
         </a>
         <button
           onClick={() => void handleStar(file.id, file.is_starred)}
-          className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-300 hover:bg-gray-700"
+          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink-100 transition-colors hover:bg-white/[0.06]"
         >
           <Star className="h-3.5 w-3.5" />
           {file.is_starred ? "Unstar" : "Star"}
         </button>
         <button
           onClick={() => void handleTrash(file.id, file.is_trashed)}
-          className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-red-400 hover:bg-gray-700"
+          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-coral-300 transition-colors hover:bg-coral-500/10"
         >
           <Trash2 className="h-3.5 w-3.5" />
           {file.is_trashed ? "Restore" : "Move to trash"}
@@ -122,7 +122,7 @@ export default function FileExplorer({
         {category === "trash" && (
           <button
             onClick={() => void handleDelete(file.id)}
-            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-red-400 hover:bg-gray-700"
+            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-coral-300 transition-colors hover:bg-coral-500/10"
           >
             <Trash2 className="h-3.5 w-3.5" />
             Delete forever
@@ -137,9 +137,9 @@ export default function FileExplorer({
       className="flex h-full flex-col"
       onClick={() => activeMenu && setActiveMenu(null)}
     >
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <div className="flex flex-wrap items-center gap-1 text-sm text-gray-400">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-1 text-sm text-ink-300">
             <Link
               href="/dashboard"
               className="flex items-center gap-1 transition-colors hover:text-white"
@@ -148,7 +148,7 @@ export default function FileExplorer({
             </Link>
             {breadcrumbs.map((crumb) => (
               <span key={crumb.id} className="flex items-center gap-1">
-                <ChevronRight className="h-3.5 w-3.5 text-gray-600" />
+                <ChevronRight className="h-3.5 w-3.5 text-ink-500" />
                 <Link
                   href={`/dashboard?folder=${crumb.id}`}
                   className="transition-colors hover:text-white"
@@ -158,12 +158,12 @@ export default function FileExplorer({
               </span>
             ))}
             {!breadcrumbs.length && (
-              <span className="font-medium text-gray-300">
+              <span className="font-medium text-white">
                 {categoryLabel[category] ?? "Files"}
               </span>
             )}
           </div>
-          <p className="mt-0.5 text-xs text-gray-600">
+          <p className="mt-1 text-xs text-ink-400">
             {folders.length} folder{folders.length !== 1 ? "s" : ""}, {files.length} file
             {files.length !== 1 ? "s" : ""}
             {searchQuery ? ` — results for "${searchQuery}"` : ""}
@@ -174,44 +174,42 @@ export default function FileExplorer({
           {category === "all" && (
             <button
               onClick={() => setCreateFolderOpen(true)}
-              className="btn-ghost flex items-center gap-1.5 text-sm"
+              className="btn-glass"
             >
               <FolderPlus className="h-4 w-4" />
               New folder
             </button>
           )}
-          <div className="flex items-center rounded-lg bg-gray-800 p-0.5">
+          <div className="segmented">
             <button
+              type="button"
+              data-active={view === "grid"}
               onClick={() => setView("grid")}
-              className={cn(
-                "rounded-md p-1.5 transition-colors",
-                view === "grid"
-                  ? "bg-gray-700 text-white"
-                  : "text-gray-500 hover:text-gray-300"
-              )}
+              aria-label="Grid view"
             >
-              <LayoutGrid className="h-4 w-4" />
+              <LayoutGrid className="h-3.5 w-3.5" />
             </button>
             <button
+              type="button"
+              data-active={view === "list"}
               onClick={() => setView("list")}
-              className={cn(
-                "rounded-md p-1.5 transition-colors",
-                view === "list"
-                  ? "bg-gray-700 text-white"
-                  : "text-gray-500 hover:text-gray-300"
-              )}
+              aria-label="List view"
             >
-              <List className="h-4 w-4" />
+              <List className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
       </div>
 
       {isEmpty && (
-        <div className="flex flex-1 flex-col items-center justify-center py-20 text-center">
-          <div className="mb-4 text-6xl">📂</div>
-          <h3 className="mb-1 text-lg font-semibold text-white">Nothing here yet</h3>
-          <p className="text-sm text-gray-500">
+        <div className="card flex flex-1 flex-col items-center justify-center py-20 text-center">
+          <div className="mb-5 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500/20 to-coral-500/20 text-3xl ring-1 ring-inset ring-white/10">
+            📂
+          </div>
+          <h3 className="mb-1 text-lg font-semibold text-white">
+            Nothing here yet
+          </h3>
+          <p className="text-sm text-ink-300">
             {category === "trash"
               ? "Trash is empty."
               : "Upload files or create a folder to get started."}
@@ -220,28 +218,31 @@ export default function FileExplorer({
       )}
 
       {!isEmpty && view === "grid" && (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+        <div className="safe-stagger grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
           {folders.map((folder) => (
             <Link
               key={folder.id}
               href={`/dashboard?folder=${folder.id}`}
-              className="card group p-4 transition-all hover:border-gray-700"
+              className="card-interactive group p-4"
             >
-              <Folder className="mb-3 h-10 w-10 text-brand-500 transition-transform group-hover:scale-105" />
-              <p className="truncate text-sm font-medium text-white">{folder.name}</p>
-              <p className="mt-0.5 text-xs text-gray-500">
+              <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-accent-500/20 to-coral-500/20 ring-1 ring-inset ring-white/10 transition-transform duration-300 ease-apple group-hover:scale-105">
+                <Folder className="h-5 w-5 text-accent-200" />
+              </div>
+              <p className="truncate text-sm font-medium text-white">
+                {folder.name}
+              </p>
+              <p className="mt-0.5 text-xs text-ink-400">
                 {formatDate(folder.created_at)}
               </p>
             </Link>
           ))}
 
           {files.map((file) => (
-            <div
-              key={file.id}
-              className="card group relative p-4 transition-all hover:border-gray-700"
-            >
+            <div key={file.id} className="card-interactive group relative p-4">
               <div className="flex items-start justify-between gap-3">
-                <span className="text-3xl">{getFileIcon(file.type)}</span>
+                <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-white/[0.04] ring-1 ring-inset ring-white/[0.06] transition-transform duration-300 ease-apple group-hover:scale-105">
+                  <span className="text-2xl">{getFileIcon(file.type)}</span>
+                </div>
                 <div
                   className="relative"
                   onClick={(event) => event.stopPropagation()}
@@ -250,7 +251,7 @@ export default function FileExplorer({
                     onClick={() =>
                       setActiveMenu(activeMenu === file.id ? null : file.id)
                     }
-                    className="p-1 text-gray-400 transition-all hover:text-gray-200 md:opacity-0 md:group-hover:opacity-100"
+                    className="rounded-lg p-1.5 text-ink-300 transition-all duration-200 ease-apple hover:bg-white/[0.06] hover:text-white md:opacity-0 md:group-hover:opacity-100"
                     aria-label={`Open actions for ${file.name}`}
                   >
                     <MoreVertical className="h-4 w-4" />
@@ -262,11 +263,11 @@ export default function FileExplorer({
               <p className="mt-3 truncate text-sm font-medium text-white">
                 {file.name}
               </p>
-              <p className="mt-0.5 text-xs text-gray-500">
+              <p className="mt-0.5 text-xs text-ink-400">
                 {formatBytes(file.size)}
               </p>
               {file.is_starred && (
-                <Star className="absolute bottom-4 right-4 h-3 w-3 text-yellow-400" />
+                <Star className="absolute bottom-4 right-4 h-3.5 w-3.5 fill-coral-400 text-coral-400" />
               )}
             </div>
           ))}
@@ -277,38 +278,40 @@ export default function FileExplorer({
         <div className="card overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-800">
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <tr className="border-b border-white/[0.06]">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-ink-400">
                   Name
                 </th>
-                <th className="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 md:table-cell">
+                <th className="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-ink-400 md:table-cell">
                   Size
                 </th>
-                <th className="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 lg:table-cell">
+                <th className="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-ink-400 lg:table-cell">
                   Modified
                 </th>
                 <th className="w-12 px-4 py-3" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800">
+            <tbody className="divide-y divide-white/[0.04]">
               {folders.map((folder) => (
                 <tr
                   key={folder.id}
-                  className="transition-colors hover:bg-gray-800/50"
+                  className="transition-colors duration-200 ease-apple hover:bg-white/[0.03]"
                 >
                   <td className="px-4 py-3">
                     <Link
                       href={`/dashboard?folder=${folder.id}`}
                       className="group flex items-center gap-3"
                     >
-                      <Folder className="h-5 w-5 shrink-0 text-brand-500" />
-                      <span className="truncate font-medium text-white transition-colors group-hover:text-brand-400">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-accent-500/20 to-coral-500/20 ring-1 ring-inset ring-white/10">
+                        <Folder className="h-4 w-4 text-accent-200" />
+                      </div>
+                      <span className="truncate font-medium text-white transition-colors group-hover:text-accent-200">
                         {folder.name}
                       </span>
                     </Link>
                   </td>
-                  <td className="hidden px-4 py-3 text-gray-500 md:table-cell">—</td>
-                  <td className="hidden px-4 py-3 text-gray-500 lg:table-cell">
+                  <td className="hidden px-4 py-3 text-ink-400 md:table-cell">—</td>
+                  <td className="hidden px-4 py-3 text-ink-400 lg:table-cell">
                     {formatDate(folder.created_at)}
                   </td>
                   <td className="px-4 py-3" />
@@ -318,28 +321,32 @@ export default function FileExplorer({
               {files.map((file) => (
                 <tr
                   key={file.id}
-                  className="group transition-colors hover:bg-gray-800/50"
+                  className="group transition-colors duration-200 ease-apple hover:bg-white/[0.03]"
                 >
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <span className="shrink-0 text-xl">{getFileIcon(file.type)}</span>
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/[0.04] ring-1 ring-inset ring-white/[0.06]">
+                        <span className="text-base">
+                          {getFileIcon(file.type)}
+                        </span>
+                      </div>
                       <div className="min-w-0">
                         <span className="block truncate font-medium text-white">
                           {file.name}
                         </span>
-                        <span className="text-xs text-gray-500 md:hidden">
+                        <span className="text-xs text-ink-400 md:hidden">
                           {formatBytes(file.size)}
                         </span>
                       </div>
                       {file.is_starred && (
-                        <Star className="h-3.5 w-3.5 shrink-0 text-yellow-400" />
+                        <Star className="h-3.5 w-3.5 shrink-0 fill-coral-400 text-coral-400" />
                       )}
                     </div>
                   </td>
-                  <td className="hidden px-4 py-3 text-gray-400 md:table-cell">
+                  <td className="hidden px-4 py-3 text-ink-300 md:table-cell">
                     {formatBytes(file.size)}
                   </td>
-                  <td className="hidden px-4 py-3 text-gray-400 lg:table-cell">
+                  <td className="hidden px-4 py-3 text-ink-300 lg:table-cell">
                     {formatDate(file.created_at)}
                   </td>
                   <td className="px-4 py-3">
@@ -351,7 +358,7 @@ export default function FileExplorer({
                         onClick={() =>
                           setActiveMenu(activeMenu === file.id ? null : file.id)
                         }
-                        className="p-1 text-gray-400 transition-all hover:text-gray-200 md:opacity-0 md:group-hover:opacity-100"
+                        className="rounded-lg p-1.5 text-ink-300 transition-all duration-200 ease-apple hover:bg-white/[0.06] hover:text-white md:opacity-0 md:group-hover:opacity-100"
                         aria-label={`Open actions for ${file.name}`}
                       >
                         <MoreVertical className="h-4 w-4" />

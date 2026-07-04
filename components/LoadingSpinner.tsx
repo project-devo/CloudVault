@@ -1,4 +1,4 @@
-import { Spin } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 type LoadingSpinnerProps = {
   className?: string;
@@ -6,7 +6,7 @@ type LoadingSpinnerProps = {
 
 const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ className = 'h-8 w-8 text-ink-200 animate-spin' }) => {
   return (
-    <Spin className={className} />
+    <Loader2 className={className} />
   );
 };
 

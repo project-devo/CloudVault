@@ -15,9 +15,12 @@ import {
   Star,
   Trash2,
 } from "lucide-react";
+import { Eye } from "lucide-react";
 import { cn, formatBytes, formatDate, getFileIcon } from "@/lib/utils";
+import { getPreviewKind } from "@/lib/preview";
 import type { FileItem, Folder as FolderType, ViewMode } from "@/types";
 import CreateFolderModal from "./CreateFolderModal";
+import PreviewModal from "./PreviewModal";
 
 interface Props {
   files: FileItem[];
@@ -44,6 +47,7 @@ export default function FileExplorer({
   const [view, setView] = useState<ViewMode>("grid");
   const [createFolderOpen, setCreateFolderOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [previewFile, setPreviewFile] = useState<FileItem | null>(null);
 
   const isEmpty = files.length === 0 && folders.length === 0;
   const categoryLabel: Record<string, string> = {
@@ -98,6 +102,18 @@ export default function FileExplorer({
   function renderFileActions(file: FileItem) {
     return (
       <div className="absolute right-0 top-9 z-20 w-44 origin-top-right rounded-xl border border-white/[0.08] bg-ink-900/90 p-1 shadow-soft-lg backdrop-blur-2xl animate-scale-in">
+        {getPreviewKind(file) !== "none" && (
+          <button
+            onClick={() => {
+              setPreviewFile(file);
+              setActiveMenu(null);
+            }}
+            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink-100 transition-colors hover:bg-white/[0.06]"
+          >
+            <Eye className="h-3.5 w-3.5" />
+            Preview
+          </button>
+        )}
         <a
           href={fileDownloadHref(file.id)}
           className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink-100 transition-colors hover:bg-white/[0.06]"
@@ -237,9 +253,15 @@ export default function FileExplorer({
             </Link>
           ))}
 
-          {files.map((file) => (
-            <div key={file.id} className="card-interactive group relative p-4">
-              <div className="flex items-start justify-between gap-3">
+          {files.map((file) => {
+            const canPreview = getPreviewKind(file) !== "none";
+            const cardClass = cn(
+              "card-interactive group relative p-4",
+              canPreview && "cursor-pointer"
+            );
+            const cardBody = (
+              <>
+                <div className="flex items-start justify-between gap-3">
                 <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-white/[0.04] ring-1 ring-inset ring-white/[0.06] transition-transform duration-300 ease-apple group-hover:scale-105">
                   <span className="text-2xl">{getFileIcon(file.type)}</span>
                 </div>
@@ -260,17 +282,33 @@ export default function FileExplorer({
                 </div>
               </div>
 
-              <p className="mt-3 truncate text-sm font-medium text-white">
-                {file.name}
-              </p>
-              <p className="mt-0.5 text-xs text-ink-400">
-                {formatBytes(file.size)}
-              </p>
-              {file.is_starred && (
-                <Star className="absolute bottom-4 right-4 h-3.5 w-3.5 fill-coral-400 text-coral-400" />
-              )}
-            </div>
-          ))}
+                <p className="mt-3 truncate text-sm font-medium text-white">
+                  {file.name}
+                </p>
+                <p className="mt-0.5 text-xs text-ink-400">
+                  {formatBytes(file.size)}
+                </p>
+                {file.is_starred && (
+                  <Star className="absolute bottom-4 right-4 h-3.5 w-3.5 fill-coral-400 text-coral-400" />
+                )}
+              </>
+            );
+            return canPreview ? (
+              <button
+                key={file.id}
+                type="button"
+                onClick={() => setPreviewFile(file)}
+                className={cn(cardClass, "w-full text-left")}
+                aria-label={`Preview ${file.name}`}
+              >
+                {cardBody}
+              </button>
+            ) : (
+              <div key={file.id} className={cardClass}>
+                {cardBody}
+              </div>
+            );
+          })}
         </div>
       )}
 
@@ -318,11 +356,19 @@ export default function FileExplorer({
                 </tr>
               ))}
 
-              {files.map((file) => (
-                <tr
-                  key={file.id}
-                  className="group transition-colors duration-200 ease-apple hover:bg-white/[0.03]"
-                >
+              {files.map((file) => {
+                const canPreview = getPreviewKind(file) !== "none";
+                return (
+                  <tr
+                    key={file.id}
+                    onClick={() => {
+                      if (canPreview) setPreviewFile(file);
+                    }}
+                    className={cn(
+                      "group transition-colors duration-200 ease-apple hover:bg-white/[0.03]",
+                      canPreview && "cursor-pointer"
+                    )}
+                  >
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/[0.04] ring-1 ring-inset ring-white/[0.06]">
@@ -367,7 +413,8 @@ export default function FileExplorer({
                     </div>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -377,6 +424,10 @@ export default function FileExplorer({
         open={createFolderOpen}
         onClose={() => setCreateFolderOpen(false)}
         currentFolderId={currentFolderId}
+      />
+      <PreviewModal
+        file={previewFile}
+        onClose={() => setPreviewFile(null)}
       />
     </div>
   );

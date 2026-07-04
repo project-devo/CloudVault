@@ -21,7 +21,7 @@ export default function UnsupportedPreview({ file }: Props) {
         </p>
       </div>
       <a
-        href={`/api/files/${file.id}`}
+        href={`/api/files/${file.id}?download=true`}
         className="btn-glass"
       >
         <Download className="h-4 w-4" />

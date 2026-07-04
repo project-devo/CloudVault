@@ -32,7 +32,7 @@ interface Props {
 }
 
 function fileDownloadHref(fileId: string) {
-  return `/api/files/${fileId}`;
+  return `/api/files/${fileId}?download=true`;
 }
 
 export default function FileExplorer({

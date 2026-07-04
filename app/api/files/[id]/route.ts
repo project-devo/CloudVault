@@ -35,10 +35,11 @@ export async function GET(
     return NextResponse.json({ error: "File not found" }, { status: 404 });
   }
 
+  const download = _request.nextUrl.searchParams.get("download") === "true";
   const admin = createAdminClient();
   const { data, error: signedUrlError } = await admin.storage
     .from("user-files")
-    .createSignedUrl(file.path, 60, { download: file.name });
+    .createSignedUrl(file.path, 60, download ? { download: file.name } : undefined);
 
   if (signedUrlError || !data?.signedUrl) {
     return NextResponse.json(

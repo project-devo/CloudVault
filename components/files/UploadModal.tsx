@@ -343,8 +343,9 @@ export default function UploadModal({ open, onClose }: Props) {
           <button
             onClick={handleClose}
             disabled={isUploading}
-            className="btn-primary w-full"
+            className="btn-primary w-full flex items-center justify-center gap-2"
           >
+            {isUploading && <Loader2 className="h-4 w-4 animate-spin text-white" />}
             {isUploading ? "Uploading..." : allDone ? "Done" : "Cancel"}
           </button>
         </div>

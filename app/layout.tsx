@@ -1,5 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import { Suspense } from "react";
+import { LoadingProvider } from "@/lib/useLoading";
+import LoadingIndicator from "@/components/LoadingIndicator";
 import "./globals.css";
 
 const inter = Inter({
@@ -29,7 +32,12 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${inter.className} relative h-full bg-ink-950 font-sans text-ink-50 antialiased`}
       >
-        <div className="relative z-10">{children}</div>
+        <LoadingProvider>
+          <div className="relative z-10">{children}</div>
+          <Suspense fallback={null}>
+            <LoadingIndicator />
+          </Suspense>
+        </LoadingProvider>
       </body>
     </html>
   );

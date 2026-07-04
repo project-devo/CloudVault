@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Cloud, Eye, EyeOff, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { useLoading } from "@/lib/useLoading";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,10 +14,12 @@ export default function LoginPage() {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { setLoading: setGlobalLoading } = useLoading();
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setGlobalLoading(true);
     setError(null);
 
     const supabase = createClient();
@@ -25,6 +28,7 @@ export default function LoginPage() {
     if (error) {
       setError(error.message);
       setLoading(false);
+      setGlobalLoading(false);
     } else {
       router.push("/dashboard");
       router.refresh();

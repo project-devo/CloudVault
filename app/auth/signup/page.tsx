@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Cloud, Eye, EyeOff, Loader2, CheckCircle2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { useLoading } from "@/lib/useLoading";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const { setLoading: setGlobalLoading } = useLoading();
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
@@ -28,6 +30,7 @@ export default function SignupPage() {
     }
 
     setLoading(true);
+    setGlobalLoading(true);
     setError(null);
 
     const supabase = createClient();
@@ -42,9 +45,11 @@ export default function SignupPage() {
     if (error) {
       setError(error.message);
       setLoading(false);
+      setGlobalLoading(false);
     } else {
       setSuccess(true);
       setLoading(false);
+      setGlobalLoading(false);
     }
   }
 

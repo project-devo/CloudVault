@@ -112,10 +112,10 @@ export default function CreateFolderModal({
             <button
               type="submit"
               disabled={!name.trim() || loading}
-              className="btn-primary flex-1"
+              className="btn-primary flex-1 flex items-center justify-center gap-1.5"
             >
-              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-              Create
+              {loading && <Loader2 className="h-4 w-4 animate-spin text-white" />}
+              {loading ? "Creating..." : "Create"}
             </button>
           </div>
         </form>

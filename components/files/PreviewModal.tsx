@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import {
   Download,
@@ -37,6 +38,12 @@ export default function PreviewModal({ file, onClose }: Props) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [localFile, setLocalFile] = useState<FileItem | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
 
   useEffect(() => {
     setLocalFile(file);
@@ -58,7 +65,7 @@ export default function PreviewModal({ file, onClose }: Props) {
     };
   }, [file, onClose]);
 
-  if (!file || !localFile) return null;
+  if (!mounted || !file || !localFile) return null;
 
   const kind = getPreviewKind(localFile);
 
@@ -109,7 +116,7 @@ export default function PreviewModal({ file, onClose }: Props) {
     }
   }
 
-  return (
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
@@ -308,6 +315,7 @@ export default function PreviewModal({ file, onClose }: Props) {
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

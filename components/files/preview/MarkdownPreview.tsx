@@ -87,7 +87,7 @@ export default function MarkdownPreview({ fileId }: Props) {
 
         <div className="flex items-center gap-2 self-end sm:self-auto">
           {/* Render vs Source Toggle */}
-          <div className="segmented">
+          <div className="segmented-text">
             <button
               type="button"
               data-active={viewMode === "preview"}

@@ -1,49 +1,48 @@
 # CloudVault
 
-CloudVault is a secure, personal cloud storage application designed with a dark aurora aesthetic. Built using **Next.js 14 (App Router)**, **Supabase (Database, Auth & Storage)**, and **Tailwind CSS**, it offers instant media previews, smooth transitions, and folder management.
+CloudVault is a secure, personal cloud storage application featuring a modern dark interface. Built on Next.js 14, Supabase, and Tailwind CSS, the application offers dynamic in-browser media previews, responsive layouts, and granular file organization.
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-### 🔍 Unified Media Preview Engine
-Instantly preview assets in-browser without forced downloads:
-* **Images**: High-performance viewer supporting zoom, pan, rotation, and checkerboard transparency backgrounds for PNGs/SVGs.
-* **Audio**: Custom media player with spinning vinyl artwork, a pulsing wave visualizer, seek progress bar, loop, and volume controls.
-* **Video**: Immersive HTML5 video player with keyboard hotkeys (Space to toggle, arrows to seek/volume, F to fullscreen, M to mute).
-* **Code & Text**: Monaco-like raw text browser featuring gutter line numbers, word-wrap toggling, clipboard copy, and real-time in-file keyword searching.
-* **Markdown**: Split view switcher supporting rendered markdown preview and raw markdown source.
-* **PDFs**: Seamless iframe embedding served with inline headers.
+### Media Preview Engine
+The application renders files inline to prevent unnecessary download prompts:
+* **Images**: Custom viewer with smooth zoom, pan, and 90-degree canvas rotation, including a checkered transparency grid pattern for PNG and SVG files.
+* **Audio**: Custom media player interface containing a spinning vinyl label animation, a styled seeker track, time metrics, and custom volume controls.
+* **Video**: Immersive player component wrapped with keyboard controls (Space to toggle play, arrows to seek/adjust volume, F for full-screen, M to mute).
+* **Text and Code**: Editor-style text reader with line numbers, copy-to-clipboard actions, word-wrap toggles, and regex-based keyword search highlighting.
+* **Markdown**: Toggle-based viewer allowing seamless switching between rendered HTML content and raw Markdown source code.
+* **PDFs**: In-browser document viewer using iframe redirects with inline content disposition.
 
-### 📁 Vault & File Management
-* **Directory Trees**: Create folders, organize files, and navigate through breadcrumb paths.
-* **Filter Categories**: Instant sidebar filters for Images, Documents, Videos, Audio, and Archives.
-* **Starred & Trash**: Tag important files or safely move deleted items to the trash folder (supports restorations or permanent deletions).
-* **Quota Tracking**: Storage usage indicator showing remaining capacity from the 1 GB free allocation.
+### Storage and File Management
+* **Hierarchical Organization**: Create directories, nest folders recursively, and navigate folders using breadcrumb links.
+* **Smart Filtering**: Sidebar categories to sort files by Images, Documents, Videos, Audio, and Archives.
+* **Actions**: Star files for quick access, move files to the trash container, and permanently delete or restore items.
+* **Usage Quota**: visual remaining storage capacity tracker based on a default 1 GB limit.
 
-### ⚡ Premium Loading UX & Animations
-* **Navigation click Interceptor**: Custom React Context and event hooks capture link double-clicks to display branded load overlays immediately during transitions.
-* **Next.js Suspense Skeletons**: Dashboard outlines pulse and top progress lines animate (`animate-aurora-shift`) when server pages resolve.
-* **React Portals**: Modal elements are portaled directly to the document root to avoid layout stacking context clipping.
+### Performance and Transition Enhancements
+* **Click Interception**: Custom context listeners hook into folder double-clicks and category navigations to immediately display loading overlays while Next.js routes settle.
+* **Skeleton Loaders**: Custom React Suspense fallbacks displaying layout outlines and an animated top progress line when loading server component pages.
+* **Stacking Context Portals**: The preview modal is portaled directly into the document body to break out of nested layout styling and display on top of navigation menus.
 
 ---
 
-## 🛠️ Tech Stack
+## Technical Stack
 
 * **Frontend**: Next.js 14 (App Router), React 18, TypeScript, Tailwind CSS
-* **Database & Auth**: Supabase (PostgreSQL, Row-Level Security)
+* **Backend Services**: Supabase Database (PostgreSQL) and Supabase Auth
 * **Storage Provider**: Supabase Storage Buckets
-* **Icon Library**: Lucide React
+* **Icon Suite**: Lucide React
 
 ---
 
-## 🚀 Getting Started
+## Local Development Setup
 
 ### Prerequisites
-* Node.js (v18.x or later)
-* A Supabase Account
+Ensure you have Node.js (v18.x or later) installed and a Supabase project created.
 
-### Setup Instructions
+### Installation
 
 1. **Clone the Repository**
    ```bash
@@ -56,8 +55,8 @@ Instantly preview assets in-browser without forced downloads:
    npm install
    ```
 
-3. **Configure Environment Variables**
-   Create a `.env.local` file in the root folder, copying from `.env.example`:
+3. **Environment Setup**
+   Create a `.env.local` file in the root directory based on the `.env.example` template:
    ```env
    NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_public_key
@@ -65,17 +64,17 @@ Instantly preview assets in-browser without forced downloads:
    NEXT_PUBLIC_APP_URL=http://localhost:3000
    ```
 
-4. **Database Schema Setup**
-   The application requires tables for `files` and `folders`. Run the schema script located in `lib/schema.sql` inside the Supabase SQL editor.
+4. **Schema Initialization**
+   Run the SQL statements located in `lib/schema.sql` inside the Supabase SQL console to initialize the files and folders database structures.
 
-5. **Start Local Development Server**
+5. **Start Dev Server**
    ```bash
    npm run dev
    ```
-   Open [http://localhost:3000](http://localhost:3000) inside your browser.
+   Open http://localhost:3000 inside your web browser.
 
 ---
 
-## 🔒 Security
-* **Row-Level Security (RLS)** is enabled on all tables in Supabase. User queries are filtered by authenticated session IDs (`auth.uid() = user_id`) to ensure file isolation.
-* Files uploaded to Supabase Storage are bucket-protected; access URLs are generated as time-restricted signed URLs.
+## Security
+* **Row-Level Security (RLS)** is applied to the PostgreSQL tables. User sessions restrict database queries using current session credentials (`auth.uid() = user_id`) to enforce strict privacy.
+* Storage operations generate temporary signed URLs (60-second expiration) to protect assets from unauthorized hotlinking.

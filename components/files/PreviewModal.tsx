@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { cn, formatBytes, formatDate } from "@/lib/utils";
 import { getPreviewKind } from "@/lib/preview";
+import { useToast } from "@/lib/useToast";
 import type { FileItem } from "@/types";
 import MarkdownPreview from "./preview/MarkdownPreview";
 import PdfPreview from "./preview/PdfPreview";
@@ -35,6 +36,7 @@ interface Props {
 
 export default function PreviewModal({ file, onClose }: Props) {
   const router = useRouter();
+  const toast = useToast();
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [localFile, setLocalFile] = useState<FileItem | null>(null);
@@ -84,10 +86,11 @@ export default function PreviewModal({ file, onClose }: Props) {
       if (!res.ok) {
         throw new Error();
       }
+      toast.success(nextStarred ? "Added to starred" : "Removed from starred");
       router.refresh();
     } catch {
       setLocalFile(localFile); // Rollback
-      alert("Failed to update star status");
+      toast.error("Failed to update star status.");
     }
   }
 
@@ -106,13 +109,14 @@ export default function PreviewModal({ file, onClose }: Props) {
       if (!res.ok) {
         throw new Error();
       }
+      toast.success(nextTrashed ? "Moved to trash" : "Restored");
       router.refresh();
       if (nextTrashed) {
         onClose();
       }
     } catch {
       setLocalFile(localFile); // Rollback
-      alert("Failed to update trash status");
+      toast.error("Failed to update trash status.");
     }
   }
 

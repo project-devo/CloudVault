@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Suspense } from "react";
 import { LoadingProvider } from "@/lib/useLoading";
+import { ToastProvider } from "@/lib/useToast";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import "./globals.css";
 
@@ -33,10 +34,12 @@ export default function RootLayout({
         className={`${inter.variable} ${inter.className} relative h-full bg-ink-950 font-sans text-ink-50 antialiased`}
       >
         <LoadingProvider>
-          <div className="relative z-10">{children}</div>
-          <Suspense fallback={null}>
-            <LoadingIndicator />
-          </Suspense>
+          <ToastProvider>
+            <div className="relative z-10">{children}</div>
+            <Suspense fallback={null}>
+              <LoadingIndicator />
+            </Suspense>
+          </ToastProvider>
         </LoadingProvider>
       </body>
     </html>

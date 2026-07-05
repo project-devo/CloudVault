@@ -65,3 +65,24 @@ export async function PATCH(request: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   return NextResponse.json({ data });
 }
+
+// DELETE /api/folders?id=… — permanently remove a folder
+export async function DELETE(request: NextRequest) {
+  const supabase = createServerSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const id =
+    request.nextUrl.searchParams.get("id") ??
+    (await request.json().catch(() => null))?.id;
+  if (!id) return NextResponse.json({ error: "Folder id required" }, { status: 400 });
+
+  const { error } = await supabase
+    .from("folders")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  return NextResponse.json({ data: { deleted: true } });
+}

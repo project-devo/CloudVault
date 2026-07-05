@@ -1,26 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   ChevronRight,
   Download,
+  Eye,
   Folder,
   FolderPlus,
   Home,
   LayoutGrid,
   List,
+  Loader2,
   MoreVertical,
+  Pencil,
   Star,
   Trash2,
 } from "lucide-react";
-import { Eye } from "lucide-react";
 import { cn, formatBytes, formatDate, getFileIcon } from "@/lib/utils";
 import { getPreviewKind } from "@/lib/preview";
+import { useToast } from "@/lib/useToast";
 import type { FileItem, Folder as FolderType, ViewMode } from "@/types";
 import CreateFolderModal from "./CreateFolderModal";
 import PreviewModal from "./PreviewModal";
+import RenameModal, { type RenameTarget } from "./RenameModal";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 interface Props {
   files: FileItem[];
@@ -31,9 +36,13 @@ interface Props {
   breadcrumbs: { id: string; name: string }[];
 }
 
+type ResourceKind = "file" | "folder";
+
 function fileDownloadHref(fileId: string) {
   return `/api/files/${fileId}?download=true`;
 }
+
+const VIEW_STORAGE_KEY = "cloudvault:view";
 
 export default function FileExplorer({
   files,
@@ -44,12 +53,42 @@ export default function FileExplorer({
   breadcrumbs,
 }: Props) {
   const router = useRouter();
+  const toast = useToast();
   const [view, setView] = useState<ViewMode>("grid");
   const [createFolderOpen, setCreateFolderOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [menuUp, setMenuUp] = useState(false);
+  const [pendingId, setPendingId] = useState<string | null>(null);
   const [previewFile, setPreviewFile] = useState<FileItem | null>(null);
+  const [renameTarget, setRenameTarget] = useState<RenameTarget | null>(null);
+  const [confirmTarget, setConfirmTarget] = useState<
+    { kind: ResourceKind; id: string; name: string } | null
+  >(null);
+  const [confirmLoading, setConfirmLoading] = useState(false);
 
   const isEmpty = files.length === 0 && folders.length === 0;
+
+  // Restore the last-used view; persist changes across navigation.
+  useEffect(() => {
+    const saved = localStorage.getItem(VIEW_STORAGE_KEY);
+    if (saved === "grid" || saved === "list") setView(saved);
+  }, []);
+
+  function changeView(next: ViewMode) {
+    setView(next);
+    localStorage.setItem(VIEW_STORAGE_KEY, next);
+  }
+
+  // Close any open menu on Escape.
+  useEffect(() => {
+    if (!activeMenu) return;
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setActiveMenu(null);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [activeMenu]);
+
   const categoryLabel: Record<string, string> = {
     all: "All Files",
     images: "Images",
@@ -61,90 +100,220 @@ export default function FileExplorer({
     trash: "Trash",
   };
 
-  async function refreshAfter(
-    action: Promise<Response>,
-    nextMenuState: string | null = null
-  ) {
-    const response = await action;
-    if (!response.ok) {
-      const body = await response.json().catch(() => null);
-      window.alert(body?.error ?? "The action failed.");
+  function toggleMenu(id: string, event: React.MouseEvent<HTMLButtonElement>) {
+    event.stopPropagation();
+    event.preventDefault();
+    if (activeMenu === id) {
+      setActiveMenu(null);
+      return;
     }
-
-    setActiveMenu(nextMenuState);
-    router.refresh();
+    const rect = event.currentTarget.getBoundingClientRect();
+    // Flip the menu upward when the trigger sits near the viewport bottom.
+    setMenuUp(rect.bottom > window.innerHeight - 240);
+    setActiveMenu(id);
   }
 
-  async function handleDelete(fileId: string) {
-    await refreshAfter(fetch(`/api/files/${fileId}`, { method: "DELETE" }));
+  function patchResource(
+    kind: ResourceKind,
+    id: string,
+    patch: Record<string, unknown>
+  ) {
+    return kind === "file"
+      ? fetch(`/api/files/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(patch),
+        })
+      : fetch(`/api/folders`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id, ...patch }),
+        });
   }
 
-  async function handleStar(fileId: string, isStarred: boolean) {
-    await refreshAfter(
-      fetch(`/api/files/${fileId}`, {
-        method: "PATCH",
-        body: JSON.stringify({ is_starred: !isStarred }),
-        headers: { "Content-Type": "application/json" },
-      })
+  function deleteResource(kind: ResourceKind, id: string) {
+    return kind === "file"
+      ? fetch(`/api/files/${id}`, { method: "DELETE" })
+      : fetch(`/api/folders?id=${id}`, { method: "DELETE" });
+  }
+
+  async function mutate(
+    id: string,
+    request: () => Promise<Response>,
+    successMessage: string
+  ): Promise<boolean> {
+    setPendingId(id);
+    try {
+      const response = await request();
+      if (!response.ok) {
+        const body = await response.json().catch(() => null);
+        toast.error(body?.error ?? "The action failed.");
+        return false;
+      }
+      toast.success(successMessage);
+      router.refresh();
+      return true;
+    } catch {
+      toast.error("Network error — please try again.");
+      return false;
+    } finally {
+      setPendingId(null);
+    }
+  }
+
+  function handleStar(kind: ResourceKind, id: string, isStarred: boolean) {
+    setActiveMenu(null);
+    return mutate(
+      id,
+      () => patchResource(kind, id, { is_starred: !isStarred }),
+      isStarred ? "Removed from starred" : "Added to starred"
     );
   }
 
-  async function handleTrash(fileId: string, isTrashed: boolean) {
-    await refreshAfter(
-      fetch(`/api/files/${fileId}`, {
-        method: "PATCH",
-        body: JSON.stringify({ is_trashed: !isTrashed }),
-        headers: { "Content-Type": "application/json" },
-      })
+  function handleTrash(kind: ResourceKind, id: string, isTrashed: boolean) {
+    setActiveMenu(null);
+    return mutate(
+      id,
+      () => patchResource(kind, id, { is_trashed: !isTrashed }),
+      isTrashed ? "Restored" : "Moved to trash"
     );
   }
 
-  function renderFileActions(file: FileItem) {
+  async function handleConfirmDelete() {
+    if (!confirmTarget) return;
+    setConfirmLoading(true);
+    const ok = await mutate(
+      confirmTarget.id,
+      () => deleteResource(confirmTarget.kind, confirmTarget.id),
+      "Deleted permanently"
+    );
+    setConfirmLoading(false);
+    if (ok) setConfirmTarget(null);
+  }
+
+  function openRename(kind: ResourceKind, id: string, name: string) {
+    setActiveMenu(null);
+    setRenameTarget({ id, name, kind });
+  }
+
+  function requestDelete(kind: ResourceKind, id: string, name: string) {
+    setActiveMenu(null);
+    setConfirmTarget({ kind, id, name });
+  }
+
+  function renderMenu(kind: ResourceKind, item: FileItem | FolderType) {
+    const isFile = kind === "file";
+    const file = isFile ? (item as FileItem) : null;
+    const disabled = pendingId === item.id;
+    const menuItem =
+      "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink-100 transition-colors hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-50";
+
     return (
-      <div className="absolute right-0 top-9 z-20 w-44 origin-top-right rounded-xl border border-white/[0.08] bg-ink-900/90 p-1 shadow-soft-lg backdrop-blur-2xl animate-scale-in">
-        {getPreviewKind(file) !== "none" && (
+      <div
+        role="menu"
+        aria-label={`Actions for ${item.name}`}
+        className={cn(
+          "absolute right-0 z-30 w-44 rounded-xl border border-white/[0.08] bg-ink-900/90 p-1 shadow-soft-lg backdrop-blur-2xl animate-scale-in",
+          menuUp ? "bottom-9 origin-bottom-right" : "top-9 origin-top-right"
+        )}
+      >
+        {isFile && file && getPreviewKind(file) !== "none" && (
           <button
+            role="menuitem"
+            disabled={disabled}
             onClick={() => {
               setPreviewFile(file);
               setActiveMenu(null);
             }}
-            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink-100 transition-colors hover:bg-white/[0.06]"
+            className={menuItem}
           >
             <Eye className="h-3.5 w-3.5" />
             Preview
           </button>
         )}
-        <a
-          href={fileDownloadHref(file.id)}
-          className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink-100 transition-colors hover:bg-white/[0.06]"
-        >
-          <Download className="h-3.5 w-3.5" />
-          Download
-        </a>
+        {isFile && (
+          <a
+            role="menuitem"
+            href={fileDownloadHref(item.id)}
+            onClick={() => setActiveMenu(null)}
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink-100 transition-colors hover:bg-white/[0.06]"
+          >
+            <Download className="h-3.5 w-3.5" />
+            Download
+          </a>
+        )}
         <button
-          onClick={() => void handleStar(file.id, file.is_starred)}
-          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink-100 transition-colors hover:bg-white/[0.06]"
+          role="menuitem"
+          disabled={disabled}
+          onClick={() => openRename(kind, item.id, item.name)}
+          className={menuItem}
         >
-          <Star className="h-3.5 w-3.5" />
-          {file.is_starred ? "Unstar" : "Star"}
+          <Pencil className="h-3.5 w-3.5" />
+          Rename
         </button>
         <button
-          onClick={() => void handleTrash(file.id, file.is_trashed)}
-          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-coral-300 transition-colors hover:bg-coral-500/10"
+          role="menuitem"
+          disabled={disabled}
+          onClick={() => void handleStar(kind, item.id, item.is_starred)}
+          className={menuItem}
+        >
+          <Star className="h-3.5 w-3.5" />
+          {item.is_starred ? "Unstar" : "Star"}
+        </button>
+        <button
+          role="menuitem"
+          disabled={disabled}
+          onClick={() => void handleTrash(kind, item.id, item.is_trashed)}
+          className={cn(
+            menuItem,
+            "text-coral-300 hover:bg-coral-500/10 hover:text-coral-200"
+          )}
         >
           <Trash2 className="h-3.5 w-3.5" />
-          {file.is_trashed ? "Restore" : "Move to trash"}
+          {item.is_trashed ? "Restore" : "Move to trash"}
         </button>
         {category === "trash" && (
           <button
-            onClick={() => void handleDelete(file.id)}
-            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-coral-300 transition-colors hover:bg-coral-500/10"
+            role="menuitem"
+            disabled={disabled}
+            onClick={() => requestDelete(kind, item.id, item.name)}
+            className={cn(
+              menuItem,
+              "text-coral-300 hover:bg-coral-500/10 hover:text-coral-200"
+            )}
           >
             <Trash2 className="h-3.5 w-3.5" />
             Delete forever
           </button>
         )}
       </div>
+    );
+  }
+
+  function renderTrigger(
+    kind: ResourceKind,
+    item: FileItem | FolderType,
+    extraClass?: string
+  ) {
+    const isPending = pendingId === item.id;
+    return (
+      <button
+        onClick={(event) => toggleMenu(item.id, event)}
+        aria-haspopup="menu"
+        aria-expanded={activeMenu === item.id}
+        aria-label={`Open actions for ${item.name}`}
+        disabled={isPending}
+        className={cn(
+          "rounded-lg p-1.5 text-ink-300 transition-all duration-200 ease-apple hover:bg-white/[0.06] hover:text-white",
+          extraClass
+        )}
+      >
+        {isPending ? (
+          <Loader2 className="h-4 w-4 animate-spin text-accent-300" />
+        ) : (
+          <MoreVertical className="h-4 w-4" />
+        )}
+      </button>
     );
   }
 
@@ -200,7 +369,7 @@ export default function FileExplorer({
             <button
               type="button"
               data-active={view === "grid"}
-              onClick={() => setView("grid")}
+              onClick={() => changeView("grid")}
               aria-label="Grid view"
             >
               <LayoutGrid className="h-3.5 w-3.5" />
@@ -208,7 +377,7 @@ export default function FileExplorer({
             <button
               type="button"
               data-active={view === "list"}
-              onClick={() => setView("list")}
+              onClick={() => changeView("list")}
               aria-label="List view"
             >
               <List className="h-3.5 w-3.5" />
@@ -236,21 +405,32 @@ export default function FileExplorer({
       {!isEmpty && view === "grid" && (
         <div className="safe-stagger grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
           {folders.map((folder) => (
-            <Link
-              key={folder.id}
-              href={`/dashboard?folder=${folder.id}`}
-              className="card-interactive group p-4"
-            >
-              <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-accent-500/20 to-coral-500/20 ring-1 ring-inset ring-white/10 transition-transform duration-300 ease-apple group-hover:scale-105">
-                <Folder className="h-5 w-5 text-accent-200" />
+            <div key={folder.id} className="group relative">
+              <Link
+                href={`/dashboard?folder=${folder.id}`}
+                className="card-interactive block p-4"
+              >
+                <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-accent-500/20 to-coral-500/20 ring-1 ring-inset ring-white/10 transition-transform duration-300 ease-apple group-hover:scale-105">
+                  <Folder className="h-5 w-5 text-accent-200" />
+                </div>
+                <p className="truncate pr-6 text-sm font-medium text-white">
+                  {folder.name}
+                </p>
+                <p className="mt-0.5 text-xs text-ink-400">
+                  {formatDate(folder.created_at)}
+                </p>
+                {folder.is_starred && (
+                  <Star className="absolute bottom-4 right-4 h-3.5 w-3.5 fill-coral-400 text-coral-400" />
+                )}
+              </Link>
+              <div
+                className="absolute right-2 top-2"
+                onClick={(event) => event.stopPropagation()}
+              >
+                {renderTrigger("folder", folder)}
+                {activeMenu === folder.id && renderMenu("folder", folder)}
               </div>
-              <p className="truncate text-sm font-medium text-white">
-                {folder.name}
-              </p>
-              <p className="mt-0.5 text-xs text-ink-400">
-                {formatDate(folder.created_at)}
-              </p>
-            </Link>
+            </div>
           ))}
 
           {files.map((file) => {
@@ -262,25 +442,21 @@ export default function FileExplorer({
             const cardBody = (
               <>
                 <div className="flex items-start justify-between gap-3">
-                <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-white/[0.04] ring-1 ring-inset ring-white/[0.06] transition-transform duration-300 ease-apple group-hover:scale-105">
-                  <span className="text-2xl">{getFileIcon(file.type)}</span>
-                </div>
-                <div
-                  className="relative"
-                  onClick={(event) => event.stopPropagation()}
-                >
-                  <button
-                    onClick={() =>
-                      setActiveMenu(activeMenu === file.id ? null : file.id)
-                    }
-                    className="rounded-lg p-1.5 text-ink-300 transition-all duration-200 ease-apple hover:bg-white/[0.06] hover:text-white md:opacity-0 md:group-hover:opacity-100"
-                    aria-label={`Open actions for ${file.name}`}
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-white/[0.04] ring-1 ring-inset ring-white/[0.06] transition-transform duration-300 ease-apple group-hover:scale-105">
+                    <span className="text-2xl">{getFileIcon(file.type)}</span>
+                  </div>
+                  <div
+                    className="relative"
+                    onClick={(event) => event.stopPropagation()}
                   >
-                    <MoreVertical className="h-4 w-4" />
-                  </button>
-                  {activeMenu === file.id && renderFileActions(file)}
+                    {renderTrigger(
+                      "file",
+                      file,
+                      "md:opacity-0 md:group-hover:opacity-100"
+                    )}
+                    {activeMenu === file.id && renderMenu("file", file)}
+                  </div>
                 </div>
-              </div>
 
                 <p className="mt-3 truncate text-sm font-medium text-white">
                   {file.name}
@@ -333,12 +509,12 @@ export default function FileExplorer({
               {folders.map((folder) => (
                 <tr
                   key={folder.id}
-                  className="transition-colors duration-200 ease-apple hover:bg-white/[0.03]"
+                  className="group transition-colors duration-200 ease-apple hover:bg-white/[0.03]"
                 >
                   <td className="px-4 py-3">
                     <Link
                       href={`/dashboard?folder=${folder.id}`}
-                      className="group flex items-center gap-3"
+                      className="flex items-center gap-3"
                     >
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-accent-500/20 to-coral-500/20 ring-1 ring-inset ring-white/10">
                         <Folder className="h-4 w-4 text-accent-200" />
@@ -346,13 +522,28 @@ export default function FileExplorer({
                       <span className="truncate font-medium text-white transition-colors group-hover:text-accent-200">
                         {folder.name}
                       </span>
+                      {folder.is_starred && (
+                        <Star className="h-3.5 w-3.5 shrink-0 fill-coral-400 text-coral-400" />
+                      )}
                     </Link>
                   </td>
                   <td className="hidden px-4 py-3 text-ink-400 md:table-cell">—</td>
                   <td className="hidden px-4 py-3 text-ink-400 lg:table-cell">
                     {formatDate(folder.created_at)}
                   </td>
-                  <td className="px-4 py-3" />
+                  <td className="px-4 py-3">
+                    <div
+                      className="relative flex justify-end"
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      {renderTrigger(
+                        "folder",
+                        folder,
+                        "md:opacity-0 md:group-hover:opacity-100"
+                      )}
+                      {activeMenu === folder.id && renderMenu("folder", folder)}
+                    </div>
+                  </td>
                 </tr>
               ))}
 
@@ -369,50 +560,46 @@ export default function FileExplorer({
                       canPreview && "cursor-pointer"
                     )}
                   >
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/[0.04] ring-1 ring-inset ring-white/[0.06]">
-                        <span className="text-base">
-                          {getFileIcon(file.type)}
-                        </span>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/[0.04] ring-1 ring-inset ring-white/[0.06]">
+                          <span className="text-base">
+                            {getFileIcon(file.type)}
+                          </span>
+                        </div>
+                        <div className="min-w-0">
+                          <span className="block truncate font-medium text-white">
+                            {file.name}
+                          </span>
+                          <span className="text-xs text-ink-400 md:hidden">
+                            {formatBytes(file.size)}
+                          </span>
+                        </div>
+                        {file.is_starred && (
+                          <Star className="h-3.5 w-3.5 shrink-0 fill-coral-400 text-coral-400" />
+                        )}
                       </div>
-                      <div className="min-w-0">
-                        <span className="block truncate font-medium text-white">
-                          {file.name}
-                        </span>
-                        <span className="text-xs text-ink-400 md:hidden">
-                          {formatBytes(file.size)}
-                        </span>
-                      </div>
-                      {file.is_starred && (
-                        <Star className="h-3.5 w-3.5 shrink-0 fill-coral-400 text-coral-400" />
-                      )}
-                    </div>
-                  </td>
-                  <td className="hidden px-4 py-3 text-ink-300 md:table-cell">
-                    {formatBytes(file.size)}
-                  </td>
-                  <td className="hidden px-4 py-3 text-ink-300 lg:table-cell">
-                    {formatDate(file.created_at)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div
-                      className="relative flex justify-end"
-                      onClick={(event) => event.stopPropagation()}
-                    >
-                      <button
-                        onClick={() =>
-                          setActiveMenu(activeMenu === file.id ? null : file.id)
-                        }
-                        className="rounded-lg p-1.5 text-ink-300 transition-all duration-200 ease-apple hover:bg-white/[0.06] hover:text-white md:opacity-0 md:group-hover:opacity-100"
-                        aria-label={`Open actions for ${file.name}`}
+                    </td>
+                    <td className="hidden px-4 py-3 text-ink-300 md:table-cell">
+                      {formatBytes(file.size)}
+                    </td>
+                    <td className="hidden px-4 py-3 text-ink-300 lg:table-cell">
+                      {formatDate(file.created_at)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div
+                        className="relative flex justify-end"
+                        onClick={(event) => event.stopPropagation()}
                       >
-                        <MoreVertical className="h-4 w-4" />
-                      </button>
-                      {activeMenu === file.id && renderFileActions(file)}
-                    </div>
-                  </td>
-                </tr>
+                        {renderTrigger(
+                          "file",
+                          file,
+                          "md:opacity-0 md:group-hover:opacity-100"
+                        )}
+                        {activeMenu === file.id && renderMenu("file", file)}
+                      </div>
+                    </td>
+                  </tr>
                 );
               })}
             </tbody>
@@ -425,10 +612,24 @@ export default function FileExplorer({
         onClose={() => setCreateFolderOpen(false)}
         currentFolderId={currentFolderId}
       />
-      <PreviewModal
-        file={previewFile}
-        onClose={() => setPreviewFile(null)}
+      <RenameModal
+        target={renameTarget}
+        onClose={() => setRenameTarget(null)}
       />
+      <ConfirmDialog
+        open={!!confirmTarget}
+        title="Delete forever?"
+        message={
+          confirmTarget
+            ? `"${confirmTarget.name}" will be permanently deleted. This can't be undone.`
+            : ""
+        }
+        confirmLabel="Delete forever"
+        loading={confirmLoading}
+        onConfirm={handleConfirmDelete}
+        onClose={() => !confirmLoading && setConfirmTarget(null)}
+      />
+      <PreviewModal file={previewFile} onClose={() => setPreviewFile(null)} />
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Menu, Search, Upload } from "lucide-react";
+import { Menu, Search, Upload, X } from "lucide-react";
 import UploadModal from "@/components/files/UploadModal";
 
 interface Props {
@@ -32,6 +32,15 @@ export default function TopBar({ onOpenNav }: Props) {
     router.push(`/dashboard?${params.toString()}`);
   }
 
+  function handleClear() {
+    setQuery("");
+    const params = new URLSearchParams(searchParams.toString());
+    if (params.has("q")) {
+      params.delete("q");
+      router.push(`/dashboard?${params.toString()}`);
+    }
+  }
+
   return (
     <>
       <header className="sticky top-0 z-20 flex shrink-0 flex-wrap items-center gap-3 px-4 pt-4 sm:px-6 sm:pt-6">
@@ -51,12 +60,22 @@ export default function TopBar({ onOpenNav }: Props) {
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
               <input
-                type="search"
+                type="text"
                 placeholder="Search files and folders..."
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                className="h-9 w-full rounded-xl border border-transparent bg-white/[0.04] pl-9 pr-3 text-sm text-ink-50 placeholder:text-ink-400 transition-all duration-200 ease-apple hover:bg-white/[0.06] focus:border-accent-400/60 focus:bg-white/[0.06] focus:outline-none focus:shadow-[0_0_0_4px_rgba(124,92,255,0.15)]"
+                className="h-9 w-full rounded-xl border border-transparent bg-white/[0.04] pl-9 pr-9 text-sm text-ink-50 placeholder:text-ink-400 transition-all duration-200 ease-apple hover:bg-white/[0.06] focus:border-accent-400/60 focus:bg-white/[0.06] focus:outline-none focus:shadow-[0_0_0_4px_rgba(124,92,255,0.15)]"
               />
+              {query && (
+                <button
+                  type="button"
+                  onClick={handleClear}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-ink-400 transition-colors hover:bg-white/[0.06] hover:text-white"
+                  aria-label="Clear search"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
             </div>
           </form>
 

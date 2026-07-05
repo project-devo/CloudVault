@@ -21,7 +21,7 @@ export default function SignupPage() {
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
     if (password !== confirmPassword) {
-      setError("Passwords don't match — classic.");
+      setError("Passwords don't match.");
       return;
     }
     if (password.length < 6) {

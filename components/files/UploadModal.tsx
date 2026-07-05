@@ -312,7 +312,7 @@ export default function UploadModal({ open, onClose }: Props) {
                       <Loader2 className="h-4 w-4 animate-spin text-accent-300" />
                     )}
                     {item.status === "success" && (
-                      <CheckCircle2 className="h-4 w-4 text-coral-400" />
+                      <CheckCircle2 className="h-4 w-4 text-success-400" />
                     )}
                     {item.status === "error" && (
                       <AlertCircle className="h-4 w-4 text-coral-400" />
@@ -328,7 +328,7 @@ export default function UploadModal({ open, onClose }: Props) {
           {allDone && uploads.length > 0 && (
             <div className="mb-3 text-sm animate-fade-in">
               {successCount > 0 && (
-                <p className="text-coral-300">
+                <p className="text-success-300">
                   {successCount} file{successCount === 1 ? "" : "s"} uploaded successfully.
                 </p>
               )}

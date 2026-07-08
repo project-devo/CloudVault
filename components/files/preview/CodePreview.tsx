@@ -6,9 +6,11 @@ import { cn } from "@/lib/utils";
 
 interface Props {
   fileId: string;
+  shareId?: string;
+  sharePassword?: string;
 }
 
-export default function CodePreview({ fileId }: Props) {
+export default function CodePreview({ fileId, shareId, sharePassword }: Props) {
   const [content, setContent] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -26,7 +28,12 @@ export default function CodePreview({ fileId }: Props) {
 
     async function load() {
       try {
-        const response = await fetch(`/api/files/${fileId}`);
+        const url = shareId
+          ? `/api/shares/${shareId}/file?fileId=${fileId}`
+          : `/api/files/${fileId}`;
+        const headers: HeadersInit = {};
+        if (shareId && sharePassword) headers["x-share-password"] = sharePassword;
+        const response = await fetch(url, { headers });
         if (!response.ok) {
           throw new Error(`Failed to fetch file contents (${response.status})`);
         }
@@ -47,7 +54,7 @@ export default function CodePreview({ fileId }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [fileId]);
+  }, [fileId, shareId, sharePassword]);
 
   useEffect(() => {
     if (showSearch && searchInputRef.current) {

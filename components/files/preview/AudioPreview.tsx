@@ -6,9 +6,11 @@ import { cn } from "@/lib/utils";
 
 interface Props {
   fileId: string;
+  shareId?: string;
+  sharePassword?: string;
 }
 
-export default function AudioPreview({ fileId }: Props) {
+export default function AudioPreview({ fileId, shareId, sharePassword }: Props) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -17,7 +19,9 @@ export default function AudioPreview({ fileId }: Props) {
   const [isLooping, setIsLooping] = useState(false);
   
   const audioRef = useRef<HTMLAudioElement>(null);
-  const src = `/api/files/${fileId}`;
+  const src = shareId
+    ? `/api/shares/${shareId}/file?fileId=${fileId}`
+    : `/api/files/${fileId}`;
 
   useEffect(() => {
     const audio = audioRef.current;

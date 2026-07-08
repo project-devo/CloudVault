@@ -87,6 +87,71 @@ CREATE POLICY "Users can update own folders"
 CREATE POLICY "Users can delete own folders"
   ON folders FOR DELETE USING (auth.uid() = user_id);
 
+-- ─── Shares table ────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS shares (
+  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id     UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  file_id     UUID REFERENCES files(id) ON DELETE CASCADE,
+  folder_id   UUID REFERENCES folders(id) ON DELETE CASCADE,
+  password    TEXT,              -- SHA-256 hashed password, NULL = no password
+  expires_at  TIMESTAMPTZ,       -- NULL = never expires
+  created_at  TIMESTAMPTZ DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ DEFAULT NOW(),
+
+  -- Exactly one of file_id or folder_id must be set
+  CONSTRAINT check_share_target CHECK (
+    (file_id IS NOT NULL AND folder_id IS NULL) OR
+    (file_id IS NULL AND folder_id IS NOT NULL)
+  ),
+
+  -- One active share per resource (revoke and recreate to rotate)
+  CONSTRAINT unique_file_share UNIQUE (file_id),
+  CONSTRAINT unique_folder_share UNIQUE (folder_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_shares_user_id   ON shares(user_id);
+CREATE INDEX IF NOT EXISTS idx_shares_file_id   ON shares(file_id);
+CREATE INDEX IF NOT EXISTS idx_shares_folder_id ON shares(folder_id);
+
+CREATE TRIGGER update_shares_updated_at
+  BEFORE UPDATE ON shares
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- ─── Shares RLS ───────────────────────────────────────────────
+ALTER TABLE shares ENABLE ROW LEVEL SECURITY;
+
+-- Owner can read / insert / update / delete their own share rows.
+CREATE POLICY "Users can manage own shares"
+  ON shares FOR ALL
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- Anyone (including anonymous visitors) may read share metadata
+-- (needed for the public /share/:id page to resolve the link).
+CREATE POLICY "Public can read share metadata"
+  ON shares FOR SELECT
+  USING (true);
+
+-- ─── Recursive Subfolder Security Helper ──────────────────────
+-- Returns TRUE when `target_id` is equal to or a descendant of `root_id`.
+-- Used by the public share API to prevent path-traversal above the root.
+CREATE OR REPLACE FUNCTION is_subfolder_of(target_id UUID, root_id UUID)
+RETURNS BOOLEAN AS $$
+DECLARE
+  curr UUID := target_id;
+BEGIN
+  -- Exact match
+  IF target_id = root_id THEN RETURN TRUE; END IF;
+  -- Walk up the parent chain
+  LOOP
+    SELECT parent_id INTO curr FROM folders WHERE id = curr;
+    EXIT WHEN curr IS NULL;
+    IF curr = root_id THEN RETURN TRUE; END IF;
+  END LOOP;
+  RETURN FALSE;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
+
 -- ─── Storage bucket (run separately in Storage section or SQL) ─
 -- INSERT INTO storage.buckets (id, name, public)
 -- VALUES ('user-files', 'user-files', false)
@@ -103,3 +168,41 @@ CREATE POLICY "Users can delete own folders"
 -- CREATE POLICY "Users can delete own files"
 --   ON storage.objects FOR DELETE
 --   USING (bucket_id = 'user-files' AND auth.uid()::text = (storage.foldername(name))[1]);
+-- ─── Shares table ───────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS shares (
+  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  token       UUID UNIQUE NOT NULL DEFAULT uuid_generate_v4(),
+  resource_type TEXT NOT NULL CHECK (resource_type IN ('file', 'folder')),
+  resource_id UUID NOT NULL,
+  user_id     UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  expires_at  TIMESTAMPTZ,
+  created_at  TIMESTAMPTZ DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Indexes for shares
+CREATE INDEX IF NOT EXISTS idx_shares_token ON shares(token);
+CREATE INDEX IF NOT EXISTS idx_shares_user_id ON shares(user_id);
+CREATE INDEX IF NOT EXISTS idx_shares_resource ON shares(resource_type, resource_id);
+
+-- Enable RLS on shares
+ALTER TABLE shares ENABLE ROW LEVEL SECURITY;
+
+-- Shares policies
+CREATE POLICY "Users can view own shares"
+  ON shares FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own shares"
+  ON shares FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own shares"
+  ON shares FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own shares"
+  ON shares FOR DELETE USING (auth.uid() = user_id);
+
+-- Trigger for updated_at (using the existing function)
+DROP TRIGGER IF EXISTS update_shares_updated_at ON shares;
+CREATE TRIGGER update_shares_updated_at
+  BEFORE UPDATE ON shares
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

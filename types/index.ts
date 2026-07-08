@@ -53,6 +53,20 @@ export interface ApiError {
 export type ApiResponse<T> = ApiSuccess<T> | ApiError;
 
 export type ViewMode = "grid" | "list";
+
+export interface Share {
+  id: string;
+  user_id: string;
+  file_id: string | null;
+  folder_id: string | null;
+  password: string | null; // hashed on server; null means no password
+  expires_at: string | null; // ISO string or null
+  created_at: string;
+  updated_at: string;
+  // Joined fields (from API responses)
+  file?: Pick<FileItem, "id" | "name" | "type" | "size">;
+  folder?: Pick<Folder, "id" | "name">;
+}
 export type SortField = "name" | "size" | "created_at" | "updated_at";
 export type SortOrder = "asc" | "desc";
 

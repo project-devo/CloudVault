@@ -6,13 +6,17 @@ import { cn } from "@/lib/utils";
 
 interface Props {
   fileId: string;
+  shareId?: string;
+  sharePassword?: string;
 }
 
-export default function VideoPreview({ fileId }: Props) {
+export default function VideoPreview({ fileId, shareId, sharePassword }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [loading, setLoading] = useState(true);
   const [showPlayOverlay, setShowPlayOverlay] = useState(false);
-  const src = `/api/files/${fileId}`;
+  const src = shareId
+    ? `/api/shares/${shareId}/file?fileId=${fileId}`
+    : `/api/files/${fileId}`;
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {

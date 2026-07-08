@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   Archive,
   Cloud,
@@ -9,6 +9,7 @@ import {
   FolderOpen,
   HardDrive,
   Image,
+  Link2,
   LogOut,
   Music,
   Star,
@@ -37,8 +38,9 @@ const NAV_ITEMS = [
 ];
 
 const BOTTOM_ITEMS = [
-  { label: "Starred", icon: Star, category: "starred" },
-  { label: "Trash", icon: Trash2, category: "trash" },
+  { label: "Starred", icon: Star, category: "starred", href: "/dashboard?category=starred" },
+  { label: "Shared Links", icon: Link2, category: "shares", href: "/dashboard/shares" },
+  { label: "Trash", icon: Trash2, category: "trash", href: "/dashboard?category=trash" },
 ];
 
 function SidebarContent({
@@ -89,10 +91,10 @@ function SidebarContent({
 
         <div className="my-3 h-px bg-white/5" />
 
-        {BOTTOM_ITEMS.map(({ label, icon: Icon, category }) => (
+        {BOTTOM_ITEMS.map(({ label, icon: Icon, category, href }) => (
           <Link
             key={category}
-            href={`/dashboard?category=${category}`}
+            href={href}
             onClick={onNavigate}
             data-active={currentCategory === category}
             className="nav-pill"
@@ -159,8 +161,12 @@ export default function Sidebar({
   onClose,
 }: Props) {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const router = useRouter();
-  const currentCategory = searchParams.get("category") ?? "all";
+  const currentCategory =
+    pathname === "/dashboard/shares"
+      ? "shares"
+      : (searchParams.get("category") ?? "all");
   const pct = storagePercent(usedBytes, totalBytes);
 
   async function handleSignOut() {

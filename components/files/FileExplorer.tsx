@@ -15,6 +15,7 @@ import {
   Loader2,
   MoreVertical,
   Pencil,
+  Share2,
   Star,
   Trash2,
 } from "lucide-react";
@@ -26,6 +27,7 @@ import CreateFolderModal from "./CreateFolderModal";
 import PreviewModal from "./PreviewModal";
 import RenameModal, { type RenameTarget } from "./RenameModal";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import ShareModal, { type ShareTarget } from "./ShareModal";
 
 interface Props {
   files: FileItem[];
@@ -65,6 +67,7 @@ export default function FileExplorer({
     { kind: ResourceKind; id: string; name: string } | null
   >(null);
   const [confirmLoading, setConfirmLoading] = useState(false);
+  const [shareTarget, setShareTarget] = useState<ShareTarget | null>(null);
 
   const isEmpty = files.length === 0 && folders.length === 0;
 
@@ -201,6 +204,11 @@ export default function FileExplorer({
     setConfirmTarget({ kind, id, name });
   }
 
+  function openShare(kind: ResourceKind, id: string, name: string) {
+    setActiveMenu(null);
+    setShareTarget({ kind, id, name });
+  }
+
   function renderMenu(kind: ResourceKind, item: FileItem | FolderType) {
     const isFile = kind === "file";
     const file = isFile ? (item as FileItem) : null;
@@ -259,6 +267,15 @@ export default function FileExplorer({
         >
           <Star className="h-3.5 w-3.5" />
           {item.is_starred ? "Unstar" : "Star"}
+        </button>
+        <button
+          role="menuitem"
+          disabled={disabled}
+          onClick={() => openShare(kind, item.id, item.name)}
+          className={menuItem}
+        >
+          <Share2 className="h-3.5 w-3.5" />
+          Share
         </button>
         <button
           role="menuitem"
@@ -630,6 +647,7 @@ export default function FileExplorer({
         onClose={() => !confirmLoading && setConfirmTarget(null)}
       />
       <PreviewModal file={previewFile} onClose={() => setPreviewFile(null)} />
+      <ShareModal target={shareTarget} onClose={() => setShareTarget(null)} />
     </div>
   );
 }

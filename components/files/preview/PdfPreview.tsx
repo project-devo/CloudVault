@@ -2,10 +2,14 @@
 
 interface Props {
   fileId: string;
+  shareId?: string;
+  sharePassword?: string;
 }
 
-export default function PdfPreview({ fileId }: Props) {
-  const src = `/api/files/${fileId}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`;
+export default function PdfPreview({ fileId, shareId, sharePassword }: Props) {
+  const src = shareId
+    ? `/api/shares/${shareId}/file?fileId=${fileId}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`
+    : `/api/files/${fileId}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`;
 
   return (
     <div className="h-full w-full bg-ink-950">

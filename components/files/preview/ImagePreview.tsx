@@ -6,9 +6,11 @@ import { cn } from "@/lib/utils";
 
 interface Props {
   fileId: string;
+  shareId?: string;
+  sharePassword?: string;
 }
 
-export default function ImagePreview({ fileId }: Props) {
+export default function ImagePreview({ fileId, shareId, sharePassword }: Props) {
   const [scale, setScale] = useState(1);
   const [rotation, setRotation] = useState(0);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -17,7 +19,9 @@ export default function ImagePreview({ fileId }: Props) {
   const dragStart = useRef({ x: 0, y: 0 });
   const imageRef = useRef<HTMLImageElement>(null);
 
-  const src = `/api/files/${fileId}`;
+  const src = shareId
+    ? `/api/shares/${shareId}/file?fileId=${fileId}`
+    : `/api/files/${fileId}`;
 
   const zoomIn = () => setScale((prev) => Math.min(prev + 0.25, 4));
   const zoomOut = () => setScale((prev) => Math.max(prev - 0.25, 0.5));

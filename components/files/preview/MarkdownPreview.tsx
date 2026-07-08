@@ -8,9 +8,11 @@ import { cn } from "@/lib/utils";
 
 interface Props {
   fileId: string;
+  shareId?: string;
+  sharePassword?: string;
 }
 
-export default function MarkdownPreview({ fileId }: Props) {
+export default function MarkdownPreview({ fileId, shareId, sharePassword }: Props) {
   const [content, setContent] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"preview" | "source">("preview");
@@ -24,7 +26,12 @@ export default function MarkdownPreview({ fileId }: Props) {
 
     async function load() {
       try {
-        const response = await fetch(`/api/files/${fileId}`);
+        const url = shareId
+          ? `/api/shares/${shareId}/file?fileId=${fileId}`
+          : `/api/files/${fileId}`;
+        const headers: HeadersInit = {};
+        if (shareId && sharePassword) headers["x-share-password"] = sharePassword;
+        const response = await fetch(url, { headers });
         if (!response.ok) {
           throw new Error(`Failed to fetch file (${response.status})`);
         }
@@ -43,7 +50,7 @@ export default function MarkdownPreview({ fileId }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [fileId]);
+  }, [fileId, shareId, sharePassword]);
 
   const handleCopy = async () => {
     if (!content) return;

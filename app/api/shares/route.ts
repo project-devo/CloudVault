@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import crypto from "crypto";
 
-// POST /api/shares - create a new share for a file or folder
+function hashPassword(password: string): string {
+  return crypto.createHash("sha256").update(password.trim()).digest("hex");
+}
+
+// POST /api/shares — create or replace a share for a file or folder
 export async function POST(request: NextRequest) {
   const supabase = createServerSupabaseClient();
   const {
@@ -13,109 +18,86 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { resource_type, resource_id, expires_at, password } = body;
+  const { file_id, folder_id, expires_at, password } = body;
 
-  // Validate input
-  if (!resource_type || !resource_id) {
+  if (!file_id && !folder_id) {
     return NextResponse.json(
-      { error: "resource_type and resource_id are required" },
+      { error: "Either file_id or folder_id is required" },
+      { status: 400 }
+    );
+  }
+  if (file_id && folder_id) {
+    return NextResponse.json(
+      { error: "Provide either file_id or folder_id, not both" },
       { status: 400 }
     );
   }
 
-  if (!["file", "folder"].includes(resource_type)) {
-    return NextResponse.json(
-      { error: "resource_type must be either 'file' or 'folder'" },
-      { status: 400 }
-    );
-  }
-
-  // Optional: parse expires_at if provided
-  let expiresAt = null;
-  if (expires_at) {
-    const parsed = new Date(expires_at);
-    if (!isNaN(parsed.getTime())) {
-      expiresAt = parsed.toISOString();
-    }
-  }
-
-  // Optional: hash password if provided
-  let passwordHash = null;
-  if (password && password.trim() !== "") {
-    const crypto = require("crypto");
-    passwordHash = crypto.createHash("sha256").update(password.trim()).digest("hex");
-  }
-
-  // Verify that the user owns the resource
-  let isOwner = false;
-  if (resource_type === "file") {
-    const { data: resource, error: resourceError } = await supabase
+  // Verify ownership
+  if (file_id) {
+    const { data: file } = await supabase
       .from("files")
       .select("id")
-      .eq("id", resource_id)
+      .eq("id", file_id)
       .eq("user_id", user.id)
       .single();
-
-    if (resourceError || !resource) {
-      return NextResponse.json(
-        { error: "File not found or access denied" },
-        { status: 404 }
-      );
+    if (!file) {
+      return NextResponse.json({ error: "File not found" }, { status: 404 });
     }
-    isOwner = true;
-  } else if (resource_type === "folder") {
-    const { data: resource, error: resourceError } = await supabase
+  } else {
+    const { data: folder } = await supabase
       .from("folders")
       .select("id")
-      .eq("id", resource_id)
+      .eq("id", folder_id)
       .eq("user_id", user.id)
       .single();
-
-    if (resourceError || !resource) {
-      return NextResponse.json(
-        { error: "Folder not found or access denied" },
-        { status: 404 }
-      );
+    if (!folder) {
+      return NextResponse.json({ error: "Folder not found" }, { status: 404 });
     }
-    isOwner = true;
   }
 
-  // Prepare insert data for legacy schema
-  const insertData = {
-    user_id: user.id,
-    file_id: resource_type === "file" ? resource_id : null,
-    folder_id: resource_type === "folder" ? resource_id : null,
-    password: passwordHash,
-    expires_at: expiresAt,
-  };
+  // Delete any existing share for this resource first (upsert replacement)
+  if (file_id) {
+    await supabase.from("shares").delete().eq("file_id", file_id).eq("user_id", user.id);
+  } else {
+    await supabase.from("shares").delete().eq("folder_id", folder_id).eq("user_id", user.id);
+  }
 
   // Create the share
+  const payload: Record<string, unknown> = {
+    user_id: user.id,
+    file_id: file_id ?? null,
+    folder_id: folder_id ?? null,
+    password: password ? hashPassword(String(password)) : null,
+    expires_at: expires_at ?? null,
+  };
+
   const { data: share, error } = await supabase
     .from("shares")
-    .insert(insertData)
-    .select()
+    .insert(payload)
+    .select("id, file_id, folder_id, expires_at, created_at")
     .single();
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error || !share) {
+    return NextResponse.json({ error: error?.message ?? "Failed to create share" }, { status: 500 });
   }
-
-  // Construct share URL
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const shareUrl = `${appUrl}/share/${share.id}`;
 
   return NextResponse.json(
     {
       data: {
-        ...share,
-        share_url: shareUrl,
-      }
+        id: share.id,
+        file_id: share.file_id,
+        folder_id: share.folder_id,
+        has_password: Boolean(password),
+        expires_at: share.expires_at,
+        created_at: share.created_at,
+      },
     },
     { status: 201 }
   );
 }
 
-// GET /api/shares - list shares for the current user with optional filtering
+// GET /api/shares — list all shares for the current user
 export async function GET(request: NextRequest) {
   const supabase = createServerSupabaseClient();
   const {
@@ -126,83 +108,38 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { searchParams } = new URL(request.url);
-  const resourceType = searchParams.get("resource_type");
-  const resourceId = searchParams.get("resource_id");
-
-  let query = supabase
+  const { data: shares, error } = await supabase
     .from("shares")
-    .select(`
+    .select(
+      `
       id,
-      user_id,
       file_id,
       folder_id,
       password,
       expires_at,
       created_at,
       updated_at,
-      files(id, name, type, size, path),
-      folders(id, name)
-    `)
+      file:files(id, name, type, size),
+      folder:folders(id, name)
+    `
+    )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
-
-  if (resourceType) {
-    // Note: the legacy schema does not have resource_type, so we need to map
-    // resource_type to file_id/folder_id presence.
-    // We'll handle this by doing a manual filter after fetching, or we can adjust the query.
-    // For simplicity, we'll fetch all and then filter in memory.
-    // Since the dataset is likely small, we'll do that.
-  }
-  if (resourceId) {
-    // Similarly, we need to match file_id or folder_id.
-  }
-
-  let { data: shares, error } = await query;
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  let sharesList = shares || [];
-
-  // Apply filtering based on resourceType and resourceId in memory
-  if (resourceType || resourceId) {
-    sharesList = sharesList.filter((share: any) => {
-      const matchType = !resourceType || 
-        (resourceType === "file" && share.file_id !== null) ||
-        (resourceType === "folder" && share.folder_id !== null);
-      const matchId = !resourceId ||
-        (share.file_id !== null && share.file_id === resourceId) ||
-        (share.folder_id !== null && share.folder_id !== null && share.folder_id === resourceId);
-      return matchType && matchId;
-    });
-  }
-
-  // Transform each share to the format expected by the frontend
-  const transformed = sharesList.map((share: any) => ({
+  const transformed = (shares ?? []).map((share: any) => ({
     id: share.id,
     file_id: share.file_id,
     folder_id: share.folder_id,
-    has_password: !!share.password,
+    has_password: Boolean(share.password),
     expires_at: share.expires_at,
     created_at: share.created_at,
     updated_at: share.updated_at,
-    file: share.files
-      ? {
-          id: share.files.id,
-          name: share.files.name,
-          type: share.files.type,
-          size: share.files.size,
-          path: share.files.path,
-        }
-      : null,
-    folder: share.folders
-      ? {
-          id: share.folders.id,
-          name: share.folders.name,
-        }
-      : null,
+    file: share.file ?? null,
+    folder: share.folder ?? null,
   }));
 
   return NextResponse.json({ data: transformed });

@@ -1,12 +1,12 @@
--- ═══════════════════════════════════════════════════════════════
--- CLOUD STORAGE — Supabase SQL Schema
--- Run this in: Supabase Dashboard → SQL Editor → New Query
--- ═══════════════════════════════════════════════════════════════
+-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+-- CLOUD STORAGE â€” Supabase SQL Schema
+-- Run this in: Supabase Dashboard â†’ SQL Editor â†’ New Query
+-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
--- ─── Extensions ───────────────────────────────────────────────
+-- â”€â”€â”€ Extensions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- ─── Folders table ────────────────────────────────────────────
+-- â”€â”€â”€ Folders table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 CREATE TABLE IF NOT EXISTS folders (
   id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name        TEXT NOT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS folders (
   updated_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
--- ─── Files table ──────────────────────────────────────────────
+-- â”€â”€â”€ Files table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 CREATE TABLE IF NOT EXISTS files (
   id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name        TEXT NOT NULL,
@@ -34,13 +34,13 @@ CREATE TABLE IF NOT EXISTS files (
   updated_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
--- ─── Indexes ──────────────────────────────────────────────────
+-- â”€â”€â”€ Indexes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 CREATE INDEX IF NOT EXISTS idx_files_user_id ON files(user_id);
 CREATE INDEX IF NOT EXISTS idx_files_folder_id ON files(folder_id);
 CREATE INDEX IF NOT EXISTS idx_folders_user_id ON folders(user_id);
 CREATE INDEX IF NOT EXISTS idx_folders_parent_id ON folders(parent_id);
 
--- ─── Auto-update updated_at ───────────────────────────────────
+-- â”€â”€â”€ Auto-update updated_at â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -57,7 +57,7 @@ CREATE TRIGGER update_folders_updated_at
   BEFORE UPDATE ON folders
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- ─── Row Level Security (RLS) — users only see their own data ──
+-- â”€â”€â”€ Row Level Security (RLS) â€” users only see their own data â”€â”€
 ALTER TABLE files ENABLE ROW LEVEL SECURITY;
 ALTER TABLE folders ENABLE ROW LEVEL SECURITY;
 
@@ -87,7 +87,7 @@ CREATE POLICY "Users can update own folders"
 CREATE POLICY "Users can delete own folders"
   ON folders FOR DELETE USING (auth.uid() = user_id);
 
--- ─── Shares table ────────────────────────────────────────────
+-- â”€â”€â”€ Shares table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 CREATE TABLE IF NOT EXISTS shares (
   id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id     UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -117,7 +117,7 @@ CREATE TRIGGER update_shares_updated_at
   BEFORE UPDATE ON shares
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- ─── Shares RLS ───────────────────────────────────────────────
+-- â”€â”€â”€ Shares RLS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 ALTER TABLE shares ENABLE ROW LEVEL SECURITY;
 
 -- Owner can read / insert / update / delete their own share rows.
@@ -132,7 +132,7 @@ CREATE POLICY "Public can read share metadata"
   ON shares FOR SELECT
   USING (true);
 
--- ─── Recursive Subfolder Security Helper ──────────────────────
+-- â”€â”€â”€ Recursive Subfolder Security Helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 -- Returns TRUE when `target_id` is equal to or a descendant of `root_id`.
 -- Used by the public share API to prevent path-traversal above the root.
 CREATE OR REPLACE FUNCTION is_subfolder_of(target_id UUID, root_id UUID)
@@ -152,7 +152,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 
--- ─── Storage bucket (run separately in Storage section or SQL) ─
+-- â”€â”€â”€ Storage bucket (run separately in Storage section or SQL) â”€
 -- INSERT INTO storage.buckets (id, name, public)
 -- VALUES ('user-files', 'user-files', false)
 -- ON CONFLICT DO NOTHING;
@@ -168,41 +168,4 @@ $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 -- CREATE POLICY "Users can delete own files"
 --   ON storage.objects FOR DELETE
 --   USING (bucket_id = 'user-files' AND auth.uid()::text = (storage.foldername(name))[1]);
--- ─── Shares table ───────────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS shares (
-  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  token       UUID UNIQUE NOT NULL DEFAULT uuid_generate_v4(),
-  resource_type TEXT NOT NULL CHECK (resource_type IN ('file', 'folder')),
-  resource_id UUID NOT NULL,
-  user_id     UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  expires_at  TIMESTAMPTZ,
-  created_at  TIMESTAMPTZ DEFAULT NOW(),
-  updated_at  TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Indexes for shares
-CREATE INDEX IF NOT EXISTS idx_shares_token ON shares(token);
-CREATE INDEX IF NOT EXISTS idx_shares_user_id ON shares(user_id);
-CREATE INDEX IF NOT EXISTS idx_shares_resource ON shares(resource_type, resource_id);
-
--- Enable RLS on shares
-ALTER TABLE shares ENABLE ROW LEVEL SECURITY;
-
--- Shares policies
-CREATE POLICY "Users can view own shares"
-  ON shares FOR SELECT USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert own shares"
-  ON shares FOR INSERT WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update own shares"
-  ON shares FOR UPDATE USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can delete own shares"
-  ON shares FOR DELETE USING (auth.uid() = user_id);
-
--- Trigger for updated_at (using the existing function)
-DROP TRIGGER IF EXISTS update_shares_updated_at ON shares;
-CREATE TRIGGER update_shares_updated_at
-  BEFORE UPDATE ON shares
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+-- â”€â”€â”€ Shares table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€

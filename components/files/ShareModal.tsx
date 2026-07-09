@@ -149,7 +149,8 @@ export default function ShareModal({ target, onClose }: Props) {
         toast.error(json.error ?? "Failed to create link");
         return;
       }
-      setShareUrl(json.data.share_url);
+      const appUrl = window.location.origin;
+      setShareUrl(`${appUrl}/share/${json.data.id}`);
       setShareId(json.data.id);
       setHasPassword(json.data.has_password);
       toast.success("Share link created!");

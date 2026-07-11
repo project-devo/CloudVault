@@ -83,7 +83,7 @@ function PreviewRenderer({
       <p className="text-lg font-semibold text-white">{file.name}</p>
       <p className="text-sm text-ink-400">{formatBytes(file.size)}</p>
       <a
-        href={`/api/shares/${shareId}/file?download=true`}
+        href={`/api/shares/${shareId}/file?download=true${sharePassword ? `&password=${encodeURIComponent(sharePassword)}` : ""}`}
         className="btn-primary mt-2"
       >
         <Download className="h-4 w-4" />
@@ -369,7 +369,7 @@ export default function SharePage({ params }: { params: { id: string } }) {
                   <p className="mt-0.5 text-sm text-ink-400">{formatBytes(meta.file.size)}</p>
                 </div>
                 <a
-                  href={`/api/shares/${shareId}/file?download=true${verifiedPassword ? "" : ""}`}
+                  href={`/api/shares/${shareId}/file?download=true${verifiedPassword ? `&password=${encodeURIComponent(verifiedPassword)}` : ""}`}
                   download
                   className="btn-primary shrink-0"
                 >
@@ -517,7 +517,7 @@ export default function SharePage({ params }: { params: { id: string } }) {
                                   </button>
                                 )}
                                 <a
-                                  href={`/api/shares/${shareId}/file?fileId=${file.id}&download=true`}
+                                  href={`/api/shares/${shareId}/file?fileId=${file.id}&download=true${verifiedPassword ? `&password=${encodeURIComponent(verifiedPassword)}` : ""}`}
                                   download
                                   onClick={(e) => e.stopPropagation()}
                                   className="rounded-lg p-1.5 text-ink-400 opacity-0 transition-all group-hover:opacity-100 hover:bg-white/[0.06] hover:text-white"
@@ -547,7 +547,7 @@ export default function SharePage({ params }: { params: { id: string } }) {
                 <span className="flex-1 truncate text-sm font-semibold text-white">{previewFile.name}</span>
                 <span className="text-xs text-ink-400">{formatBytes(previewFile.size)}</span>
                 <a
-                  href={`/api/shares/${shareId}/file?fileId=${previewFile.id}&download=true`}
+                  href={`/api/shares/${shareId}/file?fileId=${previewFile.id}&download=true${verifiedPassword ? `&password=${encodeURIComponent(verifiedPassword)}` : ""}`}
                   className="rounded-lg p-1.5 text-ink-400 hover:bg-white/[0.06] hover:text-white transition-colors"
                   title="Download"
                   aria-label="Download file"

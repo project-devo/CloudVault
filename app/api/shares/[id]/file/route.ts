@@ -43,7 +43,10 @@ export async function GET(
 
   // 2. Verify password if required
   if (share.password) {
-    const provided = request.headers.get("x-share-password") ?? "";
+    const provided =
+      request.headers.get("x-share-password") ||
+      request.nextUrl.searchParams.get("password") ||
+      "";
     if (!provided || hashPassword(provided) !== share.password) {
       return NextResponse.json({ error: "Invalid password" }, { status: 403 });
     }

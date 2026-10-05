@@ -52,6 +52,12 @@ export async function GET(
     }
   }
 
+  // Lightweight check used by the share page unlock form: password and expiry
+  // are already verified above, so skip the signed-URL redirect.
+  if (request.nextUrl.searchParams.get("verify") === "true") {
+    return NextResponse.json({ ok: true });
+  }
+
   // 3. Determine target file
   let targetFileId: string | null = share.file_id;
 

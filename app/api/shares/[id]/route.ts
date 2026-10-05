@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import {
+  createAdminClient,
+  createServerSupabaseClient,
+} from "@/lib/supabase/server";
 
 // GET /api/shares/:id — public: resolve a share link (no auth required)
 export async function GET(
   _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const supabase = createServerSupabaseClient();
+  // Public endpoint: visitors are not logged in, so RLS would hide the joined
+  // file/folder rows. Use the service-role client (server-only) and expose only
+  // safe fields (has_password, never the hash).
+  const supabase = createAdminClient();
   const { id } = params;
 
   const { data: share, error } = await supabase

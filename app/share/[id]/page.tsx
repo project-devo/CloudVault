@@ -165,11 +165,15 @@ export default function SharePage({ params }: { params: { id: string } }) {
       const headers: HeadersInit = { "x-share-password": passwordInput };
       const checkUrl = meta?.folder_id
         ? `/api/shares/${shareId}/content`
-        : `/api/shares/${shareId}/file`;
+        : `/api/shares/${shareId}/file?verify=true`;
       const res = await fetch(checkUrl, { headers, method: "GET" });
 
       if (res.status === 403) {
         setPasswordError("Incorrect password. Please try again.");
+        return;
+      }
+      if (!res.ok) {
+        setPasswordError("Could not open this link. It may have expired.");
         return;
       }
 

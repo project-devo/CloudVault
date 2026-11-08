@@ -225,27 +225,27 @@ export default function ShareModal({ target, onClose }: Props) {
       role="dialog"
       aria-modal="true"
       aria-label={`Share ${target.name}`}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-950/80 backdrop-blur-md animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-[3px] animate-fade-in"
       onClick={onClose}
     >
       <div
-        className="card relative w-full max-w-md rounded-2xl shadow-soft-lg overflow-hidden"
+        className="card relative w-full max-w-md rounded-2xl shadow-soft-lg overflow-hidden animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center gap-3 border-b border-white/[0.06] bg-ink-900/60 px-5 py-4">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl aurora-bg shadow-glow-accent shrink-0">
+        <div className="flex items-center gap-3 border-b border-ink-700 bg-ink-900/60 px-5 py-4">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-500 shrink-0">
             <Share2 className="h-4 w-4 text-white" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-white">
+            <p className="truncate text-sm font-semibold text-ink-50">
               Share &ldquo;{target.name}&rdquo;
             </p>
             <p className="text-xs text-ink-400 capitalize">{target.kind} link</p>
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1.5 text-ink-400 transition-colors hover:bg-white/[0.06] hover:text-white"
+            className="rounded-lg p-1.5 text-ink-400 transition-colors hover:bg-ink-50/[0.06] hover:text-ink-50"
             aria-label="Close"
           >
             <X className="h-4 w-4" />
@@ -271,7 +271,7 @@ export default function ShareModal({ target, onClose }: Props) {
             <div className="space-y-3">
               {/* Success banner */}
               {copied && (
-                <div className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-300">
+                <div className="flex items-center gap-2 rounded-xl border border-success-500/30 bg-success-500/10 px-3 py-2 text-xs text-success-300">
                   <Check className="h-3.5 w-3.5 shrink-0" />
                   Link copied to clipboard!
                 </div>
@@ -301,8 +301,8 @@ export default function ShareModal({ target, onClose }: Props) {
                 <button
                   onClick={handleCopy}
                   className={cn(
-                    "btn-glass flex-1 justify-center text-sm gap-2",
-                    copied && "border-emerald-500/40 text-emerald-300"
+                    "btn-outline flex-1 justify-center text-sm gap-2",
+                    copied && "border-success-500/40 text-success-300"
                   )}
                 >
                   {copied ? (
@@ -315,7 +315,7 @@ export default function ShareModal({ target, onClose }: Props) {
                   href={shareUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.04] px-3 py-2 text-sm text-ink-300 transition-colors hover:bg-white/[0.08] hover:text-white"
+                  className="flex items-center gap-1.5 rounded-xl border border-ink-700 bg-ink-50/[0.04] px-3 py-2 text-sm text-ink-300 transition-colors hover:bg-ink-50/[0.08] hover:text-ink-50"
                   title="Open in new tab"
                 >
                   <ExternalLink className="h-4 w-4" />
@@ -331,7 +331,7 @@ export default function ShareModal({ target, onClose }: Props) {
               </div>
 
               {/* Collapsible settings for regeneration */}
-              <div className="h-px bg-white/[0.05]" />
+              <div className="h-px bg-ink-50/[0.05]" />
               <button
                 type="button"
                 onClick={() => setShowSettings(!showSettings)}
@@ -364,8 +364,8 @@ export default function ShareModal({ target, onClose }: Props) {
                       className={cn(
                         "rounded-lg px-2 py-1.5 text-xs font-medium transition-all duration-200",
                         expiry === opt.value
-                          ? "aurora-bg text-white shadow-glow-accent"
-                          : "bg-white/[0.04] text-ink-300 hover:bg-white/[0.08] hover:text-white"
+                          ? "bg-ink-50 text-ink-950"
+                          : "bg-ink-50/[0.04] text-ink-300 hover:bg-ink-50/[0.08] hover:text-ink-50"
                       )}
                     >
                       {opt.label}
@@ -380,7 +380,7 @@ export default function ShareModal({ target, onClose }: Props) {
                       min={today}
                       value={customDate}
                       onChange={(e) => setCustomDate(e.target.value)}
-                      className="flex-1 rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-xs text-ink-100 focus:border-accent-400/60 focus:outline-none focus:bg-white/[0.06]"
+                      className="flex-1 rounded-lg border border-ink-700 bg-ink-50/[0.04] px-3 py-1.5 text-xs text-ink-100 focus:border-accent-400/60 focus:outline-none focus:bg-ink-50/[0.06]"
                     />
                   </div>
                 )}
@@ -399,7 +399,7 @@ export default function ShareModal({ target, onClose }: Props) {
                     placeholder="Leave empty for no password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="h-9 w-full rounded-xl border border-white/[0.08] bg-white/[0.04] pl-3 pr-9 text-sm text-ink-100 placeholder:text-ink-500 transition-all focus:border-accent-400/60 focus:bg-white/[0.06] focus:outline-none"
+                    className="h-9 w-full rounded-xl border border-ink-700 bg-ink-50/[0.04] pl-3 pr-9 text-sm text-ink-100 placeholder:text-ink-500 transition-all focus:border-accent-400/60 focus:bg-ink-50/[0.06] focus:outline-none"
                   />
                   <button
                     type="button"

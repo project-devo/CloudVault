@@ -43,14 +43,14 @@ export default function TopBar({ onOpenNav }: Props) {
 
   return (
     <>
-      <header className="sticky top-0 z-20 flex shrink-0 flex-wrap items-center gap-3 px-4 pt-4 sm:px-6 sm:pt-6">
-        <div className="glass flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 shadow-soft-lg">
+      <header className="sticky top-0 z-20 shrink-0 border-b border-ink-700 bg-ink-950/90 backdrop-blur-md">
+        <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center gap-3 px-4 py-3 sm:px-8">
           <button
             onClick={onOpenNav}
-            className="rounded-lg p-2 text-ink-300 transition-all duration-200 ease-apple hover:bg-white/[0.06] hover:text-white active:scale-95 md:hidden"
+            className="rounded-lg p-2 text-ink-300 transition-colors duration-200 ease-apple hover:bg-ink-800 hover:text-ink-50 active:scale-95 md:hidden"
             aria-label="Open navigation"
           >
-            <Menu className="h-4.5 w-4.5" />
+            <Menu className="h-5 w-5" />
           </button>
 
           <form
@@ -64,13 +64,13 @@ export default function TopBar({ onOpenNav }: Props) {
                 placeholder="Search files and folders..."
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                className="h-9 w-full rounded-xl border border-transparent bg-white/[0.04] pl-9 pr-9 text-sm text-ink-50 placeholder:text-ink-400 transition-all duration-200 ease-apple hover:bg-white/[0.06] focus:border-accent-400/60 focus:bg-white/[0.06] focus:outline-none focus:shadow-[0_0_0_4px_rgba(124,92,255,0.15)]"
+                className="h-9 w-full rounded-[10px] border border-transparent bg-ink-800 pl-9 pr-9 text-sm text-ink-50 placeholder:text-ink-400 transition-all duration-200 ease-apple hover:bg-ink-700/60 focus:border-accent-500 focus:bg-ink-900 focus:outline-none focus:ring-4 focus:ring-accent-500/15"
               />
               {query && (
                 <button
                   type="button"
                   onClick={handleClear}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-ink-400 transition-colors hover:bg-white/[0.06] hover:text-white"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-ink-400 transition-colors hover:bg-ink-700/60 hover:text-ink-50"
                   aria-label="Clear search"
                 >
                   <X className="h-3.5 w-3.5" />

@@ -231,9 +231,9 @@ export default function UploadModal({ open, onClose }: Props) {
       />
 
       <div className="sheet relative" role="dialog" aria-modal="true">
-        <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4 sm:px-6">
+        <div className="flex items-center justify-between border-b border-ink-700 px-5 py-4 sm:px-6">
           <div>
-            <h2 className="text-base font-semibold tracking-tight text-white">
+            <h2 className="text-xl font-semibold tracking-tight text-ink-50">
               Upload Files
             </h2>
             <p className="mt-0.5 text-xs text-ink-400">
@@ -243,7 +243,7 @@ export default function UploadModal({ open, onClose }: Props) {
           <button
             onClick={handleClose}
             disabled={isUploading}
-            className="rounded-full p-2 text-ink-300 transition-all duration-200 ease-apple hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-full p-2 text-ink-300 transition-all duration-200 ease-apple hover:bg-ink-50/[0.06] hover:text-ink-50 disabled:cursor-not-allowed disabled:opacity-50"
             aria-label="Close upload modal"
           >
             <X className="h-4 w-4" />
@@ -257,7 +257,7 @@ export default function UploadModal({ open, onClose }: Props) {
             className="dropzone"
           >
             <input {...getInputProps()} />
-            <div className="mx-auto mb-3 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500/20 to-coral-500/20 ring-1 ring-inset ring-white/10">
+            <div className="mx-auto mb-3 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-500/10">
               <CloudUpload
                 className={cn(
                   "h-6 w-6 transition-colors duration-200",
@@ -265,7 +265,7 @@ export default function UploadModal({ open, onClose }: Props) {
                 )}
               />
             </div>
-            <p className="mb-1 font-medium text-white">
+            <p className="mb-1 font-medium text-ink-50">
               {isDragActive ? "Drop files to upload" : "Drag and drop files here"}
             </p>
             <p className="text-xs text-ink-400">
@@ -284,10 +284,10 @@ export default function UploadModal({ open, onClose }: Props) {
               {uploads.map((item) => (
                 <li
                   key={item.id}
-                  className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-3"
+                  className="flex items-center gap-3 rounded-xl border border-ink-700 bg-ink-50/[0.03] px-4 py-3"
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-white">
+                    <p className="truncate text-sm font-medium text-ink-50">
                       {item.file.name}
                     </p>
                     <p className="text-xs text-ink-400">
@@ -299,8 +299,8 @@ export default function UploadModal({ open, onClose }: Props) {
                       </p>
                     )}
                     {item.status === "uploading" && (
-                      <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-white/[0.06]">
-                        <div className="h-full w-1/2 aurora-bg shimmer rounded-full" />
+                      <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-ink-50/[0.06]">
+                        <div className="h-full w-1/2 bg-accent-500 shimmer rounded-full" />
                       </div>
                     )}
                   </div>
@@ -324,7 +324,7 @@ export default function UploadModal({ open, onClose }: Props) {
           )}
         </div>
 
-        <div className="border-t border-white/[0.06] px-5 py-4 sm:px-6">
+        <div className="border-t border-ink-700 px-5 py-4 sm:px-6">
           {allDone && uploads.length > 0 && (
             <div className="mb-3 text-sm animate-fade-in">
               {successCount > 0 && (

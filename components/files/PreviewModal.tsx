@@ -127,13 +127,13 @@ export default function PreviewModal({ file, onClose }: Props) {
       aria-label={`Preview ${localFile.name}`}
       className={cn(
         "fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 md:p-8",
-        "bg-ink-950/80 backdrop-blur-md animate-fade-in"
+        "bg-black/50 backdrop-blur-[3px] animate-fade-in"
       )}
       onClick={onClose}
     >
       <div
         className={cn(
-          "card relative flex w-full flex-col overflow-hidden shadow-soft-lg transition-all duration-300 ease-apple",
+          "card relative flex w-full flex-col overflow-hidden shadow-soft-lg transition-all duration-300 ease-apple animate-scale-in",
           isFullscreen 
             ? "h-screen w-screen max-h-screen max-w-none rounded-none border-0" 
             : "h-full max-h-[90vh] max-w-5xl rounded-2xl"
@@ -141,9 +141,9 @@ export default function PreviewModal({ file, onClose }: Props) {
         onClick={(event) => event.stopPropagation()}
       >
         {/* Header Bar */}
-        <header className="flex items-center justify-between gap-3 border-b border-white/[0.06] bg-ink-900/60 px-4 py-3 shrink-0">
+        <header className="flex items-center justify-between gap-3 border-b border-ink-700 bg-ink-900/60 px-4 py-3 shrink-0">
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-white">
+            <p className="truncate text-sm font-semibold text-ink-50">
               {localFile.name}
             </p>
             <p className="text-xs text-ink-400">
@@ -158,8 +158,8 @@ export default function PreviewModal({ file, onClose }: Props) {
                 type="button"
                 onClick={() => setShowSidebar(!showSidebar)}
                 className={cn(
-                  "rounded-lg p-2 transition-colors hover:bg-white/[0.06] hover:text-white hidden md:block",
-                  showSidebar ? "text-accent-400 bg-white/[0.04]" : "text-ink-300"
+                  "rounded-lg p-2 transition-colors hover:bg-ink-50/[0.06] hover:text-ink-50 hidden md:block",
+                  showSidebar ? "text-accent-400 bg-ink-50/[0.04]" : "text-ink-300"
                 )}
                 aria-label="Toggle file info sidebar"
               >
@@ -171,7 +171,7 @@ export default function PreviewModal({ file, onClose }: Props) {
             <button
               type="button"
               onClick={() => setIsFullscreen(!isFullscreen)}
-              className="rounded-lg p-2 text-ink-300 transition-colors hover:bg-white/[0.06] hover:text-white"
+              className="rounded-lg p-2 text-ink-300 transition-colors hover:bg-ink-50/[0.06] hover:text-ink-50"
               aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
             >
               {isFullscreen ? (
@@ -184,19 +184,19 @@ export default function PreviewModal({ file, onClose }: Props) {
             {/* Force Download (with download=true parameter) */}
             <a
               href={`/api/files/${localFile.id}?download=true`}
-              className="rounded-lg p-2 text-ink-300 transition-colors hover:bg-white/[0.06] hover:text-white"
+              className="rounded-lg p-2 text-ink-300 transition-colors hover:bg-ink-50/[0.06] hover:text-ink-50"
               aria-label={`Download ${localFile.name}`}
             >
               <Download className="h-4 w-4" />
             </a>
 
-            <div className="h-4 w-px bg-white/10 mx-0.5" />
+            <div className="h-4 w-px bg-ink-50/10 mx-0.5" />
 
             {/* Close Modal */}
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg p-2 text-ink-300 transition-colors hover:bg-white/[0.06] hover:text-white"
+              className="rounded-lg p-2 text-ink-300 transition-colors hover:bg-ink-50/[0.06] hover:text-ink-50"
               aria-label="Close preview"
             >
               <X className="h-4 w-4" />
@@ -207,7 +207,7 @@ export default function PreviewModal({ file, onClose }: Props) {
         {/* Modal Inner Workspace */}
         <div className="flex min-h-0 flex-1">
           {/* Main preview stage */}
-          <div className="min-h-0 flex-1 bg-ink-900/40 relative">
+          <div className="min-h-0 flex-1 bg-ink-800/40 relative">
             {kind === "markdown" && <MarkdownPreview fileId={localFile.id} />}
             {kind === "pdf" && <PdfPreview fileId={localFile.id} />}
             {kind === "image" && <ImagePreview fileId={localFile.id} />}
@@ -219,7 +219,7 @@ export default function PreviewModal({ file, onClose }: Props) {
 
           {/* Collapsible Info Sidebar */}
           {showSidebar && !isFullscreen && (
-            <aside className="w-72 shrink-0 flex-col border-l border-white/[0.06] bg-ink-900/80 p-5 overflow-y-auto hidden md:flex animate-scale-in">
+            <aside className="w-72 shrink-0 flex-col border-l border-ink-700 bg-ink-900/80 p-5 overflow-y-auto hidden md:flex animate-scale-in">
               <h3 className="text-xs font-bold uppercase tracking-wider text-ink-400 mb-4">
                 File Details
               </h3>
@@ -229,7 +229,7 @@ export default function PreviewModal({ file, onClose }: Props) {
                 <div className="flex items-start gap-2.5">
                   <Database className="h-4 w-4 text-ink-400 shrink-0 mt-0.5" />
                   <div>
-                    <span className="block font-medium text-white">Size</span>
+                    <span className="block font-medium text-ink-50">Size</span>
                     <span className="text-ink-300">{formatBytes(localFile.size)} ({localFile.size.toLocaleString()} bytes)</span>
                   </div>
                 </div>
@@ -238,7 +238,7 @@ export default function PreviewModal({ file, onClose }: Props) {
                 <div className="flex items-start gap-2.5">
                   <FileCheck className="h-4 w-4 text-ink-400 shrink-0 mt-0.5" />
                   <div>
-                    <span className="block font-medium text-white">Type</span>
+                    <span className="block font-medium text-ink-50">Type</span>
                     <span className="text-ink-300 truncate block max-w-[12rem]">{localFile.type || "Unknown"}</span>
                   </div>
                 </div>
@@ -247,7 +247,7 @@ export default function PreviewModal({ file, onClose }: Props) {
                 <div className="flex items-start gap-2.5">
                   <FolderOpen className="h-4 w-4 text-ink-400 shrink-0 mt-0.5" />
                   <div>
-                    <span className="block font-medium text-white">Storage Path</span>
+                    <span className="block font-medium text-ink-50">Storage Path</span>
                     <span className="text-ink-300 break-all">{localFile.path}</span>
                   </div>
                 </div>
@@ -256,20 +256,20 @@ export default function PreviewModal({ file, onClose }: Props) {
                 <div className="flex items-start gap-2.5">
                   <Calendar className="h-4 w-4 text-ink-400 shrink-0 mt-0.5" />
                   <div>
-                    <span className="block font-medium text-white">Created</span>
+                    <span className="block font-medium text-ink-50">Created</span>
                     <span className="text-ink-300">{new Date(localFile.created_at).toLocaleString()}</span>
                   </div>
                 </div>
                 <div className="flex items-start gap-2.5">
                   <Calendar className="h-4 w-4 text-ink-400 shrink-0 mt-0.5" />
                   <div>
-                    <span className="block font-medium text-white">Modified</span>
+                    <span className="block font-medium text-ink-50">Modified</span>
                     <span className="text-ink-300">{new Date(localFile.updated_at).toLocaleString()}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="h-px bg-white/[0.06] my-5" />
+              <div className="h-px bg-ink-50/[0.06] my-5" />
 
               <h3 className="text-xs font-bold uppercase tracking-wider text-ink-400 mb-3">
                 Quick Actions
@@ -283,11 +283,11 @@ export default function PreviewModal({ file, onClose }: Props) {
                   className={cn(
                     "flex w-full items-center gap-2.5 rounded-xl border px-3 py-2 text-left text-xs transition-colors",
                     localFile.is_starred
-                      ? "border-coral-500/20 bg-coral-500/5 text-coral-300 hover:bg-coral-500/10"
-                      : "border-white/10 bg-white/[0.02] text-ink-200 hover:bg-white/[0.06] hover:text-white"
+                      ? "border-accent-500/20 bg-accent-500/5 text-accent-300 hover:bg-accent-500/10"
+                      : "border-ink-700 bg-ink-50/[0.02] text-ink-200 hover:bg-ink-50/[0.06] hover:text-ink-50"
                   )}
                 >
-                  <Star className={cn("h-4 w-4", localFile.is_starred && "fill-coral-400 text-coral-400")} />
+                  <Star className={cn("h-4 w-4", localFile.is_starred && "fill-accent-500 text-accent-500")} />
                   <span>{localFile.is_starred ? "Starred" : "Star File"}</span>
                 </button>
 
@@ -296,7 +296,7 @@ export default function PreviewModal({ file, onClose }: Props) {
                   type="button"
                   onClick={toggleTrash}
                   className={cn(
-                    "flex w-full items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.02] px-3 py-2 text-left text-xs transition-colors hover:border-coral-500/20",
+                    "flex w-full items-center gap-2.5 rounded-xl border border-ink-700 bg-ink-50/[0.02] px-3 py-2 text-left text-xs transition-colors hover:border-coral-500/20",
                     localFile.is_trashed
                       ? "text-accent-300 hover:bg-accent-500/10"
                       : "text-coral-300 hover:bg-coral-500/10"

@@ -35,20 +35,6 @@ export function getFileCategory(mimeType: string): FileCategory {
   return "all";
 }
 
-export function getFileIcon(mimeType: string): string {
-  const category = getFileCategory(mimeType);
-  const iconMap: Record<string, string> = {
-    images: "🖼️",
-    documents: "📄",
-    videos: "🎬",
-    audio: "🎵",
-    archives: "📦",
-    all: "📎",
-  };
-
-  return iconMap[category] ?? "📎";
-}
-
 export function buildStoragePath(
   userId: string,
   folderId: string | null,

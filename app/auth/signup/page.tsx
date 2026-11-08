@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Cloud, Eye, EyeOff, Loader2, CheckCircle2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, CheckCircle2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useLoading } from "@/lib/useLoading";
 
@@ -55,20 +55,17 @@ export default function SignupPage() {
 
   if (success) {
     return (
-      <div className="relative flex min-h-screen items-center justify-center px-4">
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-          <div className="absolute left-1/2 top-1/3 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-accent-500/30 blur-3xl animate-pulse-soft" />
-        </div>
-        <div className="glass w-full max-w-md rounded-3xl p-10 text-center shadow-soft-lg animate-blur-in">
-          <div className="mx-auto mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500/30 to-coral-500/30 ring-1 ring-inset ring-white/10">
-            <CheckCircle2 className="h-7 w-7 text-accent-200" />
+      <div className="flex min-h-screen items-center justify-center px-4">
+        <div className="w-full max-w-sm animate-slide-up border-t-[1.5px] border-ink-50 pt-8 text-center">
+          <div className="mx-auto mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-accent-500/10">
+            <CheckCircle2 className="h-6 w-6 text-accent-400" strokeWidth={1.5} />
           </div>
-          <h2 className="mb-2 text-2xl font-semibold tracking-tight text-white">
+          <h2 className="mb-2 text-3xl font-semibold tracking-tight text-ink-50">
             Check your email
           </h2>
           <p className="text-sm text-ink-300">
             We sent a confirmation link to{" "}
-            <strong className="text-white">{email}</strong>. Click it to
+            <strong className="text-ink-50">{email}</strong>. Click it to
             activate your CloudVault account.
           </p>
           <Link href="/auth/login" className="btn-primary mt-6 inline-flex">
@@ -80,24 +77,17 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center px-4 py-10">
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute -left-24 top-1/4 h-[420px] w-[420px] rounded-full bg-accent-500/30 blur-3xl animate-pulse-soft" />
-        <div className="absolute -right-24 bottom-0 h-[360px] w-[360px] rounded-full bg-coral-500/25 blur-3xl animate-pulse-soft [animation-delay:1.4s]" />
-      </div>
-
-      <div className="w-full max-w-md animate-slide-up">
-        <Link href="/" className="mb-10 flex items-center justify-center gap-2.5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl aurora-bg shadow-glow-accent">
-            <Cloud className="h-5 w-5 text-white" strokeWidth={2.5} />
-          </div>
-          <span className="text-xl font-semibold tracking-tight text-white">
-            CloudVault
-          </span>
+    <div className="flex min-h-screen items-center justify-center px-4 py-10">
+      <div className="w-full max-w-sm animate-slide-up">
+        <Link
+          href="/"
+          className="mb-10 block text-center font-serif text-2xl font-semibold italic tracking-tight text-ink-50"
+        >
+          CloudVault
         </Link>
 
-        <div className="glass rounded-3xl p-8 shadow-soft-lg animate-blur-in">
-          <h1 className="mb-1 text-2xl font-semibold tracking-tight text-white">
+        <div className="border-t-[1.5px] border-ink-50 pt-8">
+          <h1 className="mb-1 text-3xl font-semibold tracking-tight text-ink-50">
             Create your vault
           </h1>
           <p className="mb-8 text-sm text-ink-300">
@@ -135,7 +125,7 @@ export default function SignupPage() {
                 <button
                   type="button"
                   onClick={() => setShowPass(!showPass)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-400 transition-colors hover:text-white"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-400 transition-colors hover:text-ink-50"
                   aria-label={showPass ? "Hide password" : "Show password"}
                 >
                   {showPass ? (
@@ -162,7 +152,7 @@ export default function SignupPage() {
             </div>
 
             {error && (
-              <div className="rounded-xl border border-coral-500/30 bg-coral-500/10 px-4 py-3 text-sm text-coral-200 animate-slide-down">
+              <div className="rounded-[10px] border border-coral-500/30 bg-coral-500/10 px-4 py-3 text-sm text-coral-200 animate-slide-down">
                 {error}
               </div>
             )}
@@ -181,7 +171,7 @@ export default function SignupPage() {
             Already have an account?{" "}
             <Link
               href="/auth/login"
-              className="font-medium text-accent-300 transition-colors hover:text-accent-200"
+              className="font-medium text-accent-400 underline-offset-4 transition-colors hover:text-accent-300 hover:underline"
             >
               Sign in
             </Link>

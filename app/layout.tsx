@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Source_Serif_4 } from "next/font/google";
 import { Suspense } from "react";
 import { LoadingProvider } from "@/lib/useLoading";
 import { ToastProvider } from "@/lib/useToast";
@@ -12,6 +12,15 @@ const inter = Inter({
   display: "swap",
 });
 
+// Headlines, file names and the wordmark.
+const serif = Source_Serif_4({
+  subsets: ["latin"],
+  variable: "--font-serif",
+  display: "swap",
+  style: ["normal", "italic"],
+  axes: ["opsz"],
+});
+
 export const metadata: Metadata = {
   title: "CloudVault - Your Personal Cloud Storage",
   description: "Securely upload, organize, and access your files from anywhere.",
@@ -20,7 +29,10 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0A0A0F",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#faf8f4" },
+    { media: "(prefers-color-scheme: dark)", color: "#1a1815" },
+  ],
 };
 
 export default function RootLayout({
@@ -31,11 +43,11 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <body
-        className={`${inter.variable} ${inter.className} relative h-full bg-ink-950 font-sans text-ink-50 antialiased`}
+        className={`${inter.variable} ${serif.variable} ${inter.className} relative h-full bg-ink-950 font-sans text-ink-50 antialiased`}
       >
         <LoadingProvider>
           <ToastProvider>
-            <div className="relative z-10">{children}</div>
+            {children}
             <Suspense fallback={null}>
               <LoadingIndicator />
             </Suspense>

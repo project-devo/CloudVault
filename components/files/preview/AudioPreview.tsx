@@ -98,26 +98,24 @@ export default function AudioPreview({ fileId, shareId, sharePassword }: Props) 
   };
 
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center p-6 sm:p-12 bg-ink-950/20">
+    <div className="flex h-full w-full flex-col items-center justify-center p-6 sm:p-12 bg-ink-800/40">
       <audio ref={audioRef} src={src} preload="metadata" />
 
       {/* Album Art & Wave Visualizer Card */}
-      <div className="card relative flex w-full max-w-sm flex-col items-center justify-center p-8 bg-ink-900/60 shadow-glow-accent">
+      <div className="card relative flex w-full max-w-sm flex-col items-center justify-center p-8">
         
-        {/* Glowing Ambient Glow */}
-        <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-accent-500/10 to-coral-500/10 opacity-30 blur-2xl z-0" />
 
         {/* Vinyl Disc Container */}
-        <div className="relative z-10 flex h-36 w-36 items-center justify-center rounded-full bg-ink-950 border border-white/10 ring-8 ring-white/[0.02] shadow-soft-lg">
+        <div className="relative z-10 flex h-36 w-36 items-center justify-center rounded-full border border-ink-700 bg-tint-butter">
           {/* Vinyl Disc Grooves */}
-          <div className="absolute inset-2 rounded-full border border-dashed border-white/[0.04] animate-spin [animation-duration:12s]" style={{ animationPlayState: isPlaying ? "running" : "paused" }} />
-          <div className="absolute inset-6 rounded-full border border-white/[0.03]" />
-          <div className="absolute inset-10 rounded-full border border-dashed border-white/[0.04]" />
+          <div className="absolute inset-2 rounded-full border border-dashed border-ink-700 animate-spin [animation-duration:12s]" style={{ animationPlayState: isPlaying ? "running" : "paused" }} />
+          <div className="absolute inset-6 rounded-full border border-ink-700" />
+          <div className="absolute inset-10 rounded-full border border-dashed border-ink-700" />
           
           {/* Spinning Label */}
           <div 
             className={cn(
-              "flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-tr from-accent-600 to-coral-500 text-white shadow-soft transition-transform duration-[15s] linear infinite",
+              "flex h-16 w-16 items-center justify-center rounded-full bg-accent-500 text-white shadow-soft",
               isPlaying ? "animate-spin" : ""
             )}
           >
@@ -159,9 +157,9 @@ export default function AudioPreview({ fileId, shareId, sharePassword }: Props) 
               max={duration || 100}
               value={currentTime}
               onChange={handleSeek}
-              className="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-white/[0.08] outline-none accent-accent-400 transition-all focus:outline-none"
+              className="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-ink-50/[0.08] outline-none accent-accent-400 transition-all focus:outline-none"
               style={{
-                background: `linear-gradient(to right, #7C5CFF 0%, #7C5CFF ${(currentTime / (duration || 1)) * 100}%, rgba(255,255,255,0.08) ${(currentTime / (duration || 1)) * 100}%, rgba(255,255,255,0.08) 100%)`,
+                background: `linear-gradient(to right, rgb(var(--accent-500)) ${(currentTime / (duration || 1)) * 100}%, rgb(var(--ink-700)) ${(currentTime / (duration || 1)) * 100}%)`,
               }}
             />
             <div className="flex items-center justify-between text-2xs font-medium text-ink-400">
@@ -176,8 +174,8 @@ export default function AudioPreview({ fileId, shareId, sharePassword }: Props) 
               type="button"
               onClick={toggleLoop}
               className={cn(
-                "rounded-full p-2 transition-colors hover:bg-white/[0.06]",
-                isLooping ? "text-accent-400" : "text-ink-400 hover:text-white"
+                "rounded-full p-2 transition-colors hover:bg-ink-50/[0.06]",
+                isLooping ? "text-accent-400" : "text-ink-400 hover:text-ink-50"
               )}
               title="Repeat"
             >
@@ -189,7 +187,7 @@ export default function AudioPreview({ fileId, shareId, sharePassword }: Props) 
               onClick={() => {
                 if (audioRef.current) audioRef.current.currentTime = 0;
               }}
-              className="rounded-full p-2 text-ink-400 hover:bg-white/[0.06] hover:text-white"
+              className="rounded-full p-2 text-ink-400 hover:bg-ink-50/[0.06] hover:text-ink-50"
               title="Restart"
             >
               <RotateCcw className="h-4 w-4" />
@@ -198,7 +196,7 @@ export default function AudioPreview({ fileId, shareId, sharePassword }: Props) 
             <button
               type="button"
               onClick={togglePlay}
-              className="flex h-12 w-12 items-center justify-center rounded-full bg-accent-500 text-white shadow-glow-accent transition-transform duration-200 hover:scale-105 active:scale-95"
+              className="flex h-12 w-12 items-center justify-center rounded-full bg-accent-500 text-white transition-transform duration-200 hover:scale-105 active:scale-95"
               title={isPlaying ? "Pause" : "Play"}
             >
               {isPlaying ? (
@@ -212,7 +210,7 @@ export default function AudioPreview({ fileId, shareId, sharePassword }: Props) 
             <button
               type="button"
               onClick={toggleMute}
-              className="rounded-full p-2 text-ink-400 hover:bg-white/[0.06] hover:text-white"
+              className="rounded-full p-2 text-ink-400 hover:bg-ink-50/[0.06] hover:text-ink-50"
               title={isMuted ? "Unmute" : "Mute"}
             >
               {isMuted ? (
@@ -231,9 +229,9 @@ export default function AudioPreview({ fileId, shareId, sharePassword }: Props) 
                 step={0.05}
                 value={isMuted ? 0 : volume}
                 onChange={handleVolumeChange}
-                className="h-1 w-full cursor-pointer appearance-none rounded-lg bg-white/[0.08] outline-none accent-accent-400"
+                className="h-1 w-full cursor-pointer appearance-none rounded-lg bg-ink-50/[0.08] outline-none accent-accent-400"
                 style={{
-                  background: `linear-gradient(to right, #7C5CFF 0%, #7C5CFF ${(isMuted ? 0 : volume) * 100}%, rgba(255,255,255,0.08) ${(isMuted ? 0 : volume) * 100}%, rgba(255,255,255,0.08) 100%)`,
+                  background: `linear-gradient(to right, rgb(var(--accent-500)) ${(isMuted ? 0 : volume) * 100}%, rgb(var(--ink-700)) ${(isMuted ? 0 : volume) * 100}%)`,
                 }}
               />
             </div>

@@ -52,13 +52,10 @@ export default function LoadingIndicator() {
 
   return (
     <>
-      {/* Slim aurora progress bar for in-app navigation */}
+      {/* Slim progress line for in-app navigation */}
       {navPending && (
-        <div className="fixed inset-x-0 top-0 z-[130] h-[3px] overflow-hidden">
-          <div
-            className="h-full w-full animate-aurora-shift bg-gradient-to-r from-accent-500 via-coral-500 to-accent-500 shadow-[0_1px_10px_rgba(124,92,255,0.5)]"
-            style={{ backgroundSize: "200% 200%" }}
-          />
+        <div className="fixed inset-x-0 top-0 z-[130] h-0.5 overflow-hidden">
+          <div className="h-full w-1/3 animate-bar bg-accent-500" />
         </div>
       )}
 

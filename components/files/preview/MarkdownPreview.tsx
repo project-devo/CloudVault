@@ -84,7 +84,7 @@ export default function MarkdownPreview({ fileId, shareId, sharePassword }: Prop
   return (
     <div className="flex h-full w-full flex-col overflow-hidden bg-ink-950/20">
       {/* Markdown Action Header */}
-      <header className="flex flex-col gap-2 border-b border-white/[0.06] bg-ink-900/40 px-4 py-2.5 sm:flex-row sm:items-center sm:justify-between shrink-0">
+      <header className="flex flex-col gap-2 border-b border-ink-700 bg-ink-900/40 px-4 py-2.5 sm:flex-row sm:items-center sm:justify-between shrink-0">
         <div className="flex items-center gap-1.5 text-xs text-ink-400">
           <FileText className="h-3.5 w-3.5" />
           <span>{lines.length} lines</span>
@@ -117,7 +117,7 @@ export default function MarkdownPreview({ fileId, shareId, sharePassword }: Prop
             </button>
           </div>
 
-          <div className="h-4 w-px bg-white/10" />
+          <div className="h-4 w-px bg-ink-50/10" />
 
           {viewMode === "source" && (
             <>
@@ -125,14 +125,14 @@ export default function MarkdownPreview({ fileId, shareId, sharePassword }: Prop
                 type="button"
                 onClick={() => setWordWrap(!wordWrap)}
                 className={cn(
-                  "rounded-lg p-1.5 transition-colors hover:bg-white/[0.06]",
-                  wordWrap ? "text-accent-400 bg-white/[0.04]" : "text-ink-300 hover:text-white"
+                  "rounded-lg p-1.5 transition-colors hover:bg-ink-50/[0.06]",
+                  wordWrap ? "text-accent-400 bg-ink-50/[0.04]" : "text-ink-300 hover:text-ink-50"
                 )}
                 title="Toggle Word Wrap"
               >
                 <WrapText className="h-3.5 w-3.5" />
               </button>
-              <div className="h-4 w-px bg-white/10" />
+              <div className="h-4 w-px bg-ink-50/10" />
             </>
           )}
 
@@ -140,7 +140,7 @@ export default function MarkdownPreview({ fileId, shareId, sharePassword }: Prop
           <button
             type="button"
             onClick={handleCopy}
-            className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1.5 text-xs text-ink-200 hover:bg-white/[0.06] hover:text-white"
+            className="flex items-center gap-1.5 rounded-lg border border-ink-700 bg-ink-50/[0.03] px-2.5 py-1.5 text-xs text-ink-200 hover:bg-ink-50/[0.06] hover:text-ink-50"
           >
             {copied ? (
               <>
@@ -177,7 +177,7 @@ export default function MarkdownPreview({ fileId, shareId, sharePassword }: Prop
                   if (isInline) {
                     return (
                       <code
-                        className="rounded bg-white/[0.08] px-1.5 py-0.5 font-mono text-[0.85em] text-accent-200"
+                        className="rounded bg-ink-50/[0.08] px-1.5 py-0.5 font-mono text-[0.85em] text-accent-200"
                         {...props}
                       >
                         {children}
@@ -186,7 +186,7 @@ export default function MarkdownPreview({ fileId, shareId, sharePassword }: Prop
                   }
                   return (
                     <code
-                      className="block overflow-auto rounded-lg bg-ink-950/80 p-4 font-mono text-[0.85em] text-ink-100 border border-white/[0.04]"
+                      className="block overflow-auto rounded-lg bg-ink-950/80 p-4 font-mono text-[0.85em] text-ink-100 border border-ink-700"
                       {...props}
                     >
                       {children}
@@ -194,22 +194,22 @@ export default function MarkdownPreview({ fileId, shareId, sharePassword }: Prop
                   );
                 },
                 pre: ({ children }) => (
-                  <pre className="my-4 overflow-auto rounded-xl border border-white/[0.06] bg-ink-950/60 p-4">
+                  <pre className="my-4 overflow-auto rounded-xl border border-ink-700 bg-ink-950/60 p-4">
                     {children}
                   </pre>
                 ),
                 h1: ({ children }) => (
-                  <h1 className="mb-4 mt-6 text-2xl font-bold text-white border-b border-white/[0.06] pb-2">
+                  <h1 className="mb-4 mt-6 text-2xl font-bold text-ink-50 border-b border-ink-700 pb-2">
                     {children}
                   </h1>
                 ),
                 h2: ({ children }) => (
-                  <h2 className="mb-3 mt-6 text-xl font-semibold text-white border-b border-white/[0.04] pb-1">
+                  <h2 className="mb-3 mt-6 text-xl font-semibold text-ink-50 border-b border-ink-700 pb-1">
                     {children}
                   </h2>
                 ),
                 h3: ({ children }) => (
-                  <h3 className="mb-3 mt-5 text-lg font-semibold text-white">
+                  <h3 className="mb-3 mt-5 text-lg font-semibold text-ink-50">
                     {children}
                   </h3>
                 ),
@@ -220,27 +220,27 @@ export default function MarkdownPreview({ fileId, shareId, sharePassword }: Prop
                   <ol className="my-3 list-decimal space-y-1.5 pl-6">{children}</ol>
                 ),
                 blockquote: ({ children }) => (
-                  <blockquote className="my-4 border-l-4 border-accent-500 bg-white/[0.02] px-4 py-2.5 italic text-ink-300 rounded-r-lg">
+                  <blockquote className="my-4 border-l-4 border-accent-500 bg-ink-50/[0.02] px-4 py-2.5 italic text-ink-300 rounded-r-lg">
                     {children}
                   </blockquote>
                 ),
                 table: ({ children }) => (
-                  <div className="my-4 overflow-auto rounded-lg border border-white/[0.06] bg-ink-900/20">
+                  <div className="my-4 overflow-auto rounded-lg border border-ink-700 bg-ink-900/20">
                     <table className="w-full text-left text-sm border-collapse">{children}</table>
                   </div>
                 ),
                 th: ({ children }) => (
-                  <th className="border-b border-white/[0.08] bg-white/[0.04] px-4 py-2.5 font-semibold text-white">
+                  <th className="border-b border-ink-700 bg-ink-50/[0.04] px-4 py-2.5 font-semibold text-ink-50">
                     {children}
                   </th>
                 ),
                 td: ({ children }) => (
-                  <td className="border-b border-white/[0.04] px-4 py-2 text-ink-300">
+                  <td className="border-b border-ink-700 px-4 py-2 text-ink-300">
                     {children}
                   </td>
                 ),
                 hr: () => (
-                  <hr className="my-6 border-white/[0.08]" />
+                  <hr className="my-6 border-ink-700" />
                 ),
               }}
             >
@@ -253,8 +253,8 @@ export default function MarkdownPreview({ fileId, shareId, sharePassword }: Prop
               <table className="w-full border-collapse">
                 <tbody>
                   {lines.map((line, idx) => (
-                    <tr key={idx} className="group hover:bg-white/[0.02]">
-                      <td className="w-10 select-none border-r border-white/[0.04] pr-3 text-right text-ink-600 group-hover:text-ink-400">
+                    <tr key={idx} className="group hover:bg-ink-50/[0.02]">
+                      <td className="w-10 select-none border-r border-ink-700 pr-3 text-right text-ink-600 group-hover:text-ink-400">
                         {idx + 1}
                       </td>
                       <td

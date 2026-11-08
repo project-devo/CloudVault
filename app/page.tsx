@@ -1,9 +1,27 @@
 'use client';
 
 import Link from "next/link";
-import { Cloud, Globe, Shield, Sparkles, Zap, ArrowRight } from "lucide-react";
+import { ArrowRight, Cloud, Globe, Shield, Zap } from "lucide-react";
 import { useLoading } from "@/lib/useLoading";
 import { useRouter } from "next/navigation";
+
+const FEATURES = [
+  {
+    icon: Shield,
+    title: "End-to-end secure",
+    desc: "Row-level security ensures only you access your files.",
+  },
+  {
+    icon: Zap,
+    title: "Instant uploads",
+    desc: "Direct to Supabase Storage. No middle-man slowing you down.",
+  },
+  {
+    icon: Globe,
+    title: "Access anywhere",
+    desc: "Browser-based. Open your vault from any device, any OS.",
+  },
+];
 
 export default function HomePage() {
   const { isLoading, setLoading } = useLoading();
@@ -21,114 +39,81 @@ export default function HomePage() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden">
-      {/* Aurora background blobs */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
-      >
-        <div className="absolute -left-32 top-[-10%] h-[520px] w-[520px] rounded-full bg-accent-500/30 blur-3xl animate-pulse-soft" />
-        <div className="absolute right-[-12%] top-[-5%] h-[480px] w-[480px] rounded-full bg-coral-500/25 blur-3xl animate-pulse-soft [animation-delay:1.2s]" />
-        <div className="absolute left-1/2 top-[35%] h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-accent-400/15 blur-3xl" />
-      </div>
-
-
-
-      <nav className="relative z-10 flex items-center justify-between gap-3 px-4 py-5 sm:px-8">
-        <Link href="/" className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl aurora-bg shadow-glow-accent">
-            <Cloud className="h-4.5 w-4.5 text-white" strokeWidth={2.5} />
-          </div>
-          <span className="text-lg font-semibold tracking-tight text-white">
-            CloudVault
-          </span>
-        </Link>
-        <div className="flex items-center gap-2">
-          <Link href="/auth/login" className="btn-ghost">
-            Sign in
-          </Link>
-          <button
-            onClick={handleGetStartedClick}
-            disabled={isLoading}
-            className={`btn-primary group w-full px-7 py-3 text-base sm:w-auto ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+    <div className="min-h-screen overflow-x-hidden">
+      <header className="border-b border-ink-700">
+        <nav className="mx-auto flex max-w-4xl items-center justify-between gap-3 px-5 py-4 sm:px-8">
+          <Link
+            href="/"
+            className="font-serif text-xl font-semibold italic tracking-tight text-ink-50"
           >
-            {isLoading ? (
-              <>
-                <span className="mr-2 animate-spin">
-                  <Cloud className="h-4 w-4" />
-                </span>
-                <span>Loading...</span>
-              </>
-            ) : (
-              <>
-                Start for free
-                <ArrowRight className="h-4 w-4 transition-transform duration-300 ease-apple group-hover:translate-x-0.5" />
-              </>
-            )}
-          </button>
-        </div>
-      </nav>
-
-      <main className="relative z-10 mx-auto flex max-w-6xl flex-col items-center px-4 pb-24 pt-16 text-center sm:px-6 sm:pt-24">
-        <div className="mx-auto max-w-3xl animate-fade-in">
-          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 backdrop-blur-xl">
-            <Sparkles className="h-3.5 w-3.5 text-accent-300" />
-            <span className="text-sm font-medium text-ink-100">
-              1 GB free — no credit card
-            </span>
+            CloudVault
+          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/auth/login" className="btn-ghost">
+              Sign in
+            </Link>
+            <button
+              onClick={handleGetStartedClick}
+              disabled={isLoading}
+              className="btn-primary group"
+            >
+              {isLoading ? (
+                <>
+                  <span className="animate-spin">
+                    <Cloud className="h-4 w-4" />
+                  </span>
+                  <span>Loading...</span>
+                </>
+              ) : (
+                <>
+                  Start for free
+                  <ArrowRight className="h-4 w-4 transition-transform duration-300 ease-apple group-hover:translate-x-0.5" />
+                </>
+              )}
+            </button>
           </div>
+        </nav>
+      </header>
 
-          <h1 className="mb-6 text-balance text-5xl font-semibold leading-[1.05] tracking-tightest text-white sm:text-6xl md:text-7xl">
-            Your files,
-            <br className="hidden sm:block" />{" "}
-            <span className="aurora-text">everywhere you are</span>
+      <main className="mx-auto max-w-4xl px-5 pb-24 pt-14 sm:px-8 sm:pt-24">
+        <div className="max-w-2xl">
+          <p className="animate-fade-in text-[11px] font-semibold uppercase tracking-[0.16em] text-accent-400">
+            1 GB free — no credit card
+          </p>
+
+          <h1 className="mb-6 mt-5 text-5xl font-semibold leading-[1.02] tracking-tight text-ink-50 [word-spacing:0.06em] sm:text-6xl md:text-7xl">
+            <span className="reveal-line">
+              <span>Your files,</span>
+            </span>
+            <span className="reveal-line">
+              <span className="text-balance italic">everywhere you are</span>
+            </span>
           </h1>
 
-          <p className="mx-auto mb-10 max-w-xl text-pretty text-lg leading-relaxed text-ink-300 sm:text-xl">
+          <p className="mb-10 max-w-xl animate-slide-up text-pretty font-serif text-lg italic leading-relaxed text-ink-300 [animation-delay:0.25s] sm:text-xl">
             Upload, organize, and share files securely. Built on Supabase — your
             data stays yours.
           </p>
 
-          <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
-            <Link
-              href="/auth/signup"
-              className="btn-primary group w-full px-7 py-3 text-base sm:w-auto"
-            >
+          <div className="flex animate-slide-up flex-col items-start gap-4 [animation-delay:0.35s] sm:flex-row sm:items-center sm:gap-7">
+            <Link href="/auth/signup" className="btn-primary group px-6 py-3 text-base">
               Start for free
               <ArrowRight className="h-4 w-4 transition-transform duration-300 ease-apple group-hover:translate-x-0.5" />
             </Link>
             <Link
               href="/auth/login"
-              className="btn-glass w-full px-6 py-3 text-base sm:w-auto"
+              className="border-b border-ink-50 pb-0.5 text-sm font-medium text-ink-50 transition-opacity duration-200 hover:opacity-60"
             >
               I have an account
             </Link>
           </div>
         </div>
 
-        <div className="safe-stagger mt-20 grid w-full max-w-5xl grid-cols-1 gap-4 sm:mt-28 sm:grid-cols-3">
-          {[
-            {
-              icon: Shield,
-              title: "End-to-end secure",
-              desc: "Row-level security ensures only you access your files.",
-            },
-            {
-              icon: Zap,
-              title: "Instant uploads",
-              desc: "Direct to Supabase Storage. No middle-man slowing you down.",
-            },
-            {
-              icon: Globe,
-              title: "Access anywhere",
-              desc: "Browser-based. Open your vault from any device, any OS.",
-            },
-          ].map(({ icon: Icon, title, desc }) => (
-            <div key={title} className="card-interactive p-6 text-left">
-              <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-accent-500/20 to-coral-500/20 ring-1 ring-inset ring-white/10">
-                <Icon className="h-5 w-5 text-accent-200" />
-              </div>
-              <h3 className="mb-1.5 text-base font-semibold text-white">
+        <div className="safe-stagger mt-20 grid gap-x-10 gap-y-10 border-t-[1.5px] border-ink-50 pt-8 sm:mt-28 sm:grid-cols-3">
+          {FEATURES.map(({ icon: Icon, title, desc }) => (
+            <div key={title}>
+              <Icon className="mb-4 h-5 w-5 text-accent-400" strokeWidth={1.25} />
+              <h3 className="mb-1.5 font-serif text-lg font-semibold tracking-tight text-ink-50">
                 {title}
               </h3>
               <p className="text-sm leading-relaxed text-ink-300">{desc}</p>
@@ -137,7 +122,7 @@ export default function HomePage() {
         </div>
       </main>
 
-      <footer className="relative z-10 border-t border-white/5 py-6 text-center text-sm text-ink-400">
+      <footer className="border-t border-ink-700 py-6 text-center text-xs text-ink-400">
         CloudVault — built with Next.js 14 + Supabase
       </footer>
     </div>

@@ -1,6 +1,6 @@
 # CloudVault
 
-CloudVault is a secure, personal cloud storage application featuring a modern dark interface. Built on Next.js 14, Supabase, and Tailwind CSS, the application offers dynamic in-browser media previews, responsive layouts, and granular file organization.
+CloudVault is a secure, personal cloud storage application featuring a calm, editorial interface (warm paper in light mode, warm charcoal in dark mode). Built on Next.js 14, Supabase, and Tailwind CSS, the application offers dynamic in-browser media previews, responsive layouts, and granular file organization.
 
 ---
 

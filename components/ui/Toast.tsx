@@ -28,7 +28,7 @@ export default function Toast({ toast, onDismiss }: Props) {
     <div
       role="status"
       aria-live="polite"
-      className="glass pointer-events-auto flex w-full items-start gap-3 rounded-2xl px-4 py-3 shadow-soft-lg animate-slide-up"
+      className="pointer-events-auto flex w-full items-start gap-3 rounded-xl border border-ink-700 bg-ink-900 px-4 py-3 shadow-soft-lg animate-slide-up"
     >
       <Icon className={cn("mt-0.5 h-4 w-4 shrink-0", ACCENT[toast.type])} />
       <p className="min-w-0 flex-1 text-sm leading-relaxed text-ink-100">
@@ -36,7 +36,7 @@ export default function Toast({ toast, onDismiss }: Props) {
       </p>
       <button
         onClick={() => onDismiss(toast.id)}
-        className="-mr-1 -mt-0.5 shrink-0 rounded-lg p-1 text-ink-400 transition-colors hover:bg-white/[0.06] hover:text-white"
+        className="-mr-1 -mt-0.5 shrink-0 rounded-lg p-1 text-ink-400 transition-colors hover:bg-ink-50/[0.06] hover:text-ink-50"
         aria-label="Dismiss notification"
       >
         <X className="h-3.5 w-3.5" />

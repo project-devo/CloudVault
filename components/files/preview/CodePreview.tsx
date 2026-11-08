@@ -110,7 +110,7 @@ export default function CodePreview({ fileId, shareId, sharePassword }: Props) {
         <>
           {parts.map((part, i) =>
             part.toLowerCase() === searchQuery.toLowerCase() ? (
-              <mark key={i} className="bg-coral-500/40 text-white rounded-xs px-0.5 font-medium">
+              <mark key={i} className="bg-coral-500/40 text-ink-50 rounded-xs px-0.5 font-medium">
                 {part}
               </mark>
             ) : (
@@ -125,9 +125,9 @@ export default function CodePreview({ fileId, shareId, sharePassword }: Props) {
   };
 
   return (
-    <div className="flex h-full w-full flex-col overflow-hidden bg-ink-950/40">
+    <div className="flex h-full w-full flex-col overflow-hidden bg-ink-800/40">
       {/* File Action/Stat Header */}
-      <header className="flex flex-col gap-2 border-b border-white/[0.06] bg-ink-900/40 px-4 py-2.5 sm:flex-row sm:items-center sm:justify-between shrink-0">
+      <header className="flex flex-col gap-2 border-b border-ink-700 bg-ink-900/40 px-4 py-2.5 sm:flex-row sm:items-center sm:justify-between shrink-0">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5 text-xs text-ink-300">
             <FileText className="h-3.5 w-3.5" />
@@ -147,7 +147,7 @@ export default function CodePreview({ fileId, shareId, sharePassword }: Props) {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Find in file..."
-                className="rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-1 text-xs text-white placeholder:text-ink-500 focus:border-accent-500/50 focus:outline-none focus:ring-1 focus:ring-accent-500/50"
+                className="rounded-lg border border-ink-700 bg-ink-50/[0.04] px-2.5 py-1 text-xs text-ink-50 placeholder:text-ink-500 focus:border-accent-500/50 focus:outline-none focus:ring-1 focus:ring-accent-500/50"
               />
               <button
                 type="button"
@@ -155,7 +155,7 @@ export default function CodePreview({ fileId, shareId, sharePassword }: Props) {
                   setSearchQuery("");
                   setShowSearch(false);
                 }}
-                className="absolute right-2 text-ink-400 hover:text-white text-xs"
+                className="absolute right-2 text-ink-400 hover:text-ink-50 text-xs"
               >
                 ✕
               </button>
@@ -164,22 +164,22 @@ export default function CodePreview({ fileId, shareId, sharePassword }: Props) {
             <button
               type="button"
               onClick={() => setShowSearch(true)}
-              className="rounded-lg p-1.5 text-ink-300 hover:bg-white/[0.06] hover:text-white"
+              className="rounded-lg p-1.5 text-ink-300 hover:bg-ink-50/[0.06] hover:text-ink-50"
               title="Search"
             >
               <Search className="h-4 w-4" />
             </button>
           )}
 
-          <div className="h-4 w-px bg-white/10" />
+          <div className="h-4 w-px bg-ink-50/10" />
 
           {/* Word wrap toggle */}
           <button
             type="button"
             onClick={() => setWordWrap(!wordWrap)}
             className={cn(
-              "rounded-lg p-1.5 transition-colors hover:bg-white/[0.06]",
-              wordWrap ? "text-accent-400 bg-white/[0.04]" : "text-ink-300 hover:text-white"
+              "rounded-lg p-1.5 transition-colors hover:bg-ink-50/[0.06]",
+              wordWrap ? "text-accent-400 bg-ink-50/[0.04]" : "text-ink-300 hover:text-ink-50"
             )}
             title="Toggle Word Wrap"
           >
@@ -190,7 +190,7 @@ export default function CodePreview({ fileId, shareId, sharePassword }: Props) {
           <button
             type="button"
             onClick={handleCopy}
-            className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1.5 text-xs text-ink-200 hover:bg-white/[0.06] hover:text-white"
+            className="flex items-center gap-1.5 rounded-lg border border-ink-700 bg-ink-50/[0.03] px-2.5 py-1.5 text-xs text-ink-200 hover:bg-ink-50/[0.06] hover:text-ink-50"
           >
             {copied ? (
               <>
@@ -213,9 +213,9 @@ export default function CodePreview({ fileId, shareId, sharePassword }: Props) {
           <table className="w-full border-collapse">
             <tbody>
               {lines.map((line, idx) => (
-                <tr key={idx} className="group hover:bg-white/[0.02]">
+                <tr key={idx} className="group hover:bg-ink-50/[0.02]">
                   {/* Line Number Gutter */}
-                  <td className="w-10 select-none border-r border-white/[0.04] pr-3 text-right text-ink-600 group-hover:text-ink-400">
+                  <td className="w-10 select-none border-r border-ink-700 pr-3 text-right text-ink-600 group-hover:text-ink-400">
                     {idx + 1}
                   </td>
                   {/* Code Line Content */}

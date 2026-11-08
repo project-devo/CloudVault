@@ -8,8 +8,6 @@ import {
   Clock,
   Copy,
   ExternalLink,
-  File,
-  Folder,
   Link2,
   Loader2,
   Lock,
@@ -19,6 +17,7 @@ import {
 } from "lucide-react";
 import { cn, formatDate } from "@/lib/utils";
 import { useToast } from "@/lib/useToast";
+import FileTypeIcon from "@/components/ui/FileTypeIcon";
 import ShareModal, { type ShareTarget } from "@/components/files/ShareModal";
 
 interface ShareRow {
@@ -33,6 +32,11 @@ interface ShareRow {
   folder?: { id: string; name: string } | null;
 }
 
+const TH =
+  "px-1 py-2.5 text-left text-[11px] font-semibold uppercase tracking-[0.13em] text-ink-300";
+const BADGE =
+  "inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium";
+
 function isExpired(expiresAt: string | null) {
   if (!expiresAt) return false;
   return new Date(expiresAt) < new Date();
@@ -41,7 +45,7 @@ function isExpired(expiresAt: string | null) {
 function ExpiryBadge({ expiresAt }: { expiresAt: string | null }) {
   if (!expiresAt) {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-accent-500/15 px-2 py-0.5 text-xs font-medium text-accent-300">
+      <span className={cn(BADGE, "bg-ink-800 text-ink-300")}>
         <Clock className="h-3 w-3" /> Never
       </span>
     );
@@ -50,10 +54,10 @@ function ExpiryBadge({ expiresAt }: { expiresAt: string | null }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
+        BADGE,
         expired
-          ? "bg-coral-500/15 text-coral-300"
-          : "bg-emerald-500/15 text-emerald-300"
+          ? "bg-coral-500/10 text-coral-300"
+          : "bg-success-500/10 text-success-300"
       )}
     >
       {expired ? <AlertTriangle className="h-3 w-3" /> : <Calendar className="h-3 w-3" />}
@@ -116,16 +120,16 @@ export default function SharesPage() {
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold text-white">Shared Links</h1>
-          <p className="mt-0.5 text-sm text-ink-400">
+          <h1 className="text-3xl font-semibold tracking-tight text-ink-50 sm:text-4xl">Shared Links</h1>
+          <p className="mt-1.5 text-sm text-ink-400">
             {shares.length} active link{shares.length !== 1 ? "s" : ""}
           </p>
         </div>
         <button
           onClick={() => void fetchShares()}
-          className="btn-glass"
+          className="btn-outline"
           disabled={loading}
           aria-label="Refresh"
         >
@@ -143,11 +147,11 @@ export default function SharesPage() {
 
       {/* Empty state */}
       {!loading && shares.length === 0 && (
-        <div className="card flex flex-1 flex-col items-center justify-center py-20 text-center">
-          <div className="mb-5 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500/20 to-coral-500/20 text-3xl ring-1 ring-inset ring-white/10">
-            <Link2 className="h-7 w-7 text-accent-300" />
+        <div className="flex flex-1 flex-col items-center justify-center border-y border-ink-700 py-20 text-center">
+          <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-tint-sand text-ink-100">
+            <Link2 className="h-6 w-6" strokeWidth={1.25} />
           </div>
-          <h3 className="mb-1 text-lg font-semibold text-white">No shared links yet</h3>
+          <h3 className="mb-1 font-serif text-xl font-semibold tracking-tight text-ink-50">No shared links yet</h3>
           <p className="text-sm text-ink-300">
             Right-click any file or folder and choose &ldquo;Share&rdquo; to create a link.
           </p>
@@ -156,28 +160,18 @@ export default function SharesPage() {
 
       {/* Shares list */}
       {!loading && shares.length > 0 && (
-        <div className="card overflow-hidden">
+        <div className="border-b border-ink-700">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-white/[0.06]">
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-ink-400">
-                  Resource
-                </th>
-                <th className="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-ink-400 md:table-cell">
-                  Security
-                </th>
-                <th className="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-ink-400 lg:table-cell">
-                  Expires
-                </th>
-                <th className="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-ink-400 xl:table-cell">
-                  Created
-                </th>
-                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-ink-400">
-                  Actions
-                </th>
+              <tr className="border-b-[1.5px] border-ink-50">
+                <th className={cn(TH, "text-ink-50")}>Resource</th>
+                <th className={cn(TH, "hidden px-3 md:table-cell")}>Security</th>
+                <th className={cn(TH, "hidden px-3 lg:table-cell")}>Expires</th>
+                <th className={cn(TH, "hidden px-3 xl:table-cell")}>Created</th>
+                <th className={cn(TH, "text-right")}>Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/[0.04]">
+            <tbody className="safe-stagger divide-y divide-ink-700">
               {shares.map((share) => {
                 const name = share.file?.name ?? share.folder?.name ?? "Unknown";
                 const isFolder = Boolean(share.folder_id);
@@ -187,62 +181,56 @@ export default function SharesPage() {
                   <tr
                     key={share.id}
                     className={cn(
-                      "group transition-colors duration-200 hover:bg-white/[0.03]",
+                      "group transition-colors duration-200 hover:bg-ink-800/60",
                       expired && "opacity-60"
                     )}
                   >
                     {/* Resource */}
-                    <td className="px-4 py-3">
+                    <td className="px-1 py-2.5">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-accent-500/20 to-coral-500/20 ring-1 ring-inset ring-white/10">
-                          {isFolder ? (
-                            <Folder className="h-4 w-4 text-accent-200" />
-                          ) : (
-                            <File className="h-4 w-4 text-ink-300" />
-                          )}
-                        </div>
+                        <FileTypeIcon folder={isFolder} mime={share.file?.type} />
                         <div className="min-w-0">
-                          <span className="block truncate font-medium text-white">{name}</span>
-                          <span className="text-xs capitalize text-ink-500">{isFolder ? "Folder" : "File"}</span>
+                          <span className="block truncate font-serif text-[15px] font-semibold tracking-tight text-ink-50">{name}</span>
+                          <span className="text-xs capitalize text-ink-400">{isFolder ? "Folder" : "File"}</span>
                         </div>
                       </div>
                     </td>
 
                     {/* Security */}
-                    <td className="hidden px-4 py-3 md:table-cell">
+                    <td className="hidden px-3 py-2.5 md:table-cell">
                       {share.has_password ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-xs font-medium text-amber-300">
+                        <span className={cn(BADGE, "bg-tint-butter text-ink-100")}>
                           <Lock className="h-3 w-3" /> Password
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-white/[0.06] px-2 py-0.5 text-xs font-medium text-ink-400">
+                        <span className={cn(BADGE, "bg-ink-800 text-ink-400")}>
                           Public
                         </span>
                       )}
                     </td>
 
                     {/* Expires */}
-                    <td className="hidden px-4 py-3 lg:table-cell">
+                    <td className="hidden px-3 py-2.5 lg:table-cell">
                       <ExpiryBadge expiresAt={share.expires_at} />
                     </td>
 
                     {/* Created */}
-                    <td className="hidden px-4 py-3 text-ink-300 xl:table-cell">
+                    <td className="hidden px-3 py-2.5 text-ink-300 xl:table-cell">
                       {formatDate(share.created_at)}
                     </td>
 
                     {/* Actions */}
-                    <td className="px-4 py-3">
+                    <td className="px-1 py-2.5">
                       <div className="flex items-center justify-end gap-1">
                         {/* Copy link */}
                         <button
                           onClick={() => void handleCopy(share.id)}
-                          className="rounded-lg p-1.5 text-ink-400 transition-all hover:bg-white/[0.06] hover:text-white"
+                          className="rounded-lg p-1.5 text-ink-400 transition-all hover:bg-ink-800 hover:text-ink-50"
                           title="Copy link"
                           aria-label="Copy share link"
                         >
                           {copied === share.id ? (
-                            <Check className="h-4 w-4 text-emerald-400" />
+                            <Check className="h-4 w-4 text-success-400" />
                           ) : (
                             <Copy className="h-4 w-4" />
                           )}
@@ -253,7 +241,7 @@ export default function SharesPage() {
                           href={`/share/${share.id}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="rounded-lg p-1.5 text-ink-400 transition-all hover:bg-white/[0.06] hover:text-white"
+                          className="rounded-lg p-1.5 text-ink-400 transition-all hover:bg-ink-800 hover:text-ink-50"
                           title="Open link"
                           aria-label="Open share link"
                         >
@@ -269,7 +257,7 @@ export default function SharesPage() {
                               name,
                             })
                           }
-                          className="rounded-lg p-1.5 text-ink-400 transition-all hover:bg-white/[0.06] hover:text-white"
+                          className="rounded-lg p-1.5 text-ink-400 transition-all hover:bg-ink-800 hover:text-ink-50"
                           title="Edit link settings"
                           aria-label="Edit share settings"
                         >
@@ -280,7 +268,7 @@ export default function SharesPage() {
                         <button
                           onClick={() => void handleRevoke(share.id)}
                           disabled={revoking === share.id}
-                          className="rounded-lg p-1.5 text-coral-400/70 transition-all hover:bg-coral-500/10 hover:text-coral-300 disabled:opacity-50"
+                          className="rounded-lg p-1.5 text-coral-400/80 transition-all hover:bg-coral-500/10 hover:text-coral-300 disabled:opacity-50"
                           title="Revoke link"
                           aria-label="Revoke share link"
                         >

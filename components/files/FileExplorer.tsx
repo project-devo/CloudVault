@@ -7,7 +7,7 @@ import {
   ChevronRight,
   Download,
   Eye,
-  Folder,
+  FolderOpen,
   FolderPlus,
   Home,
   LayoutGrid,
@@ -19,7 +19,7 @@ import {
   Star,
   Trash2,
 } from "lucide-react";
-import { cn, formatBytes, formatDate, getFileIcon } from "@/lib/utils";
+import { cn, formatBytes, formatDate } from "@/lib/utils";
 import { getPreviewKind } from "@/lib/preview";
 import { useToast } from "@/lib/useToast";
 import type { FileItem, Folder as FolderType, ViewMode } from "@/types";
@@ -27,6 +27,7 @@ import CreateFolderModal from "./CreateFolderModal";
 import PreviewModal from "./PreviewModal";
 import RenameModal, { type RenameTarget } from "./RenameModal";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import FileTypeIcon from "@/components/ui/FileTypeIcon";
 import ShareModal, { type ShareTarget } from "./ShareModal";
 
 interface Props {
@@ -46,6 +47,9 @@ function fileDownloadHref(fileId: string) {
 
 const VIEW_STORAGE_KEY = "cloudvault:view";
 
+const TH =
+  "px-1 py-2.5 text-left text-[11px] font-semibold uppercase tracking-[0.13em] text-ink-300";
+
 export default function FileExplorer({
   files,
   folders,
@@ -56,7 +60,7 @@ export default function FileExplorer({
 }: Props) {
   const router = useRouter();
   const toast = useToast();
-  const [view, setView] = useState<ViewMode>("grid");
+  const [view, setView] = useState<ViewMode>("list");
   const [createFolderOpen, setCreateFolderOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [menuUp, setMenuUp] = useState(false);
@@ -102,6 +106,13 @@ export default function FileExplorer({
     starred: "Starred",
     trash: "Trash",
   };
+
+  const title = breadcrumbs.length
+    ? breadcrumbs[breadcrumbs.length - 1].name
+    : categoryLabel[category] ?? "Files";
+
+  // Changing location re-mounts the list so its rows drift in again.
+  const listKey = `${category}|${currentFolderId ?? ""}|${searchQuery}`;
 
   function toggleMenu(id: string, event: React.MouseEvent<HTMLButtonElement>) {
     event.stopPropagation();
@@ -214,14 +225,14 @@ export default function FileExplorer({
     const file = isFile ? (item as FileItem) : null;
     const disabled = pendingId === item.id;
     const menuItem =
-      "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink-100 transition-colors hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-50";
+      "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink-100 transition-colors hover:bg-ink-800 disabled:cursor-not-allowed disabled:opacity-50";
 
     return (
       <div
         role="menu"
         aria-label={`Actions for ${item.name}`}
         className={cn(
-          "absolute right-0 z-30 w-44 rounded-xl border border-white/[0.08] bg-ink-900/90 p-1 shadow-soft-lg backdrop-blur-2xl animate-scale-in",
+          "absolute right-0 z-30 w-44 rounded-xl border border-ink-700 bg-ink-900 p-1 shadow-soft-lg animate-scale-in",
           menuUp ? "bottom-9 origin-bottom-right" : "top-9 origin-top-right"
         )}
       >
@@ -244,7 +255,7 @@ export default function FileExplorer({
             role="menuitem"
             href={fileDownloadHref(item.id)}
             onClick={() => setActiveMenu(null)}
-            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink-100 transition-colors hover:bg-white/[0.06]"
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink-100 transition-colors hover:bg-ink-800"
           >
             <Download className="h-3.5 w-3.5" />
             Download
@@ -321,12 +332,12 @@ export default function FileExplorer({
         aria-label={`Open actions for ${item.name}`}
         disabled={isPending}
         className={cn(
-          "rounded-lg p-1.5 text-ink-300 transition-all duration-200 ease-apple hover:bg-white/[0.06] hover:text-white",
+          "rounded-lg p-1.5 text-ink-300 transition-all duration-200 ease-apple hover:bg-ink-800 hover:text-ink-50",
           extraClass
         )}
       >
         {isPending ? (
-          <Loader2 className="h-4 w-4 animate-spin text-accent-300" />
+          <Loader2 className="h-4 w-4 animate-spin text-accent-400" />
         ) : (
           <MoreVertical className="h-4 w-4" />
         )}
@@ -339,33 +350,34 @@ export default function FileExplorer({
       className="flex h-full flex-col"
       onClick={() => activeMenu && setActiveMenu(null)}
     >
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-1 text-sm text-ink-300">
-            <Link
-              href="/dashboard"
-              className="flex items-center gap-1 transition-colors hover:text-white"
-            >
-              <Home className="h-3.5 w-3.5" />
-            </Link>
-            {breadcrumbs.map((crumb) => (
-              <span key={crumb.id} className="flex items-center gap-1">
-                <ChevronRight className="h-3.5 w-3.5 text-ink-500" />
-                <Link
-                  href={`/dashboard?folder=${crumb.id}`}
-                  className="transition-colors hover:text-white"
-                >
-                  {crumb.name}
-                </Link>
-              </span>
-            ))}
-            {!breadcrumbs.length && (
-              <span className="font-medium text-white">
-                {categoryLabel[category] ?? "Files"}
-              </span>
-            )}
-          </div>
-          <p className="mt-1 text-xs text-ink-400">
+          {breadcrumbs.length > 0 && (
+            <div className="mb-2 flex flex-wrap items-center gap-1 text-sm text-ink-300">
+              <Link
+                href="/dashboard"
+                aria-label="All files"
+                className="flex items-center gap-1 transition-colors hover:text-ink-50"
+              >
+                <Home className="h-3.5 w-3.5" />
+              </Link>
+              {breadcrumbs.slice(0, -1).map((crumb) => (
+                <span key={crumb.id} className="flex items-center gap-1">
+                  <ChevronRight className="h-3.5 w-3.5 text-ink-500" />
+                  <Link
+                    href={`/dashboard?folder=${crumb.id}`}
+                    className="transition-colors hover:text-ink-50"
+                  >
+                    {crumb.name}
+                  </Link>
+                </span>
+              ))}
+            </div>
+          )}
+          <h1 className="truncate font-serif text-3xl font-semibold tracking-tight text-ink-50 sm:text-4xl">
+            {title}
+          </h1>
+          <p className="mt-1.5 text-sm text-ink-400">
             {folders.length} folder{folders.length !== 1 ? "s" : ""}, {files.length} file
             {files.length !== 1 ? "s" : ""}
             {searchQuery ? ` — results for "${searchQuery}"` : ""}
@@ -376,7 +388,7 @@ export default function FileExplorer({
           {category === "all" && (
             <button
               onClick={() => setCreateFolderOpen(true)}
-              className="btn-glass"
+              className="btn-outline"
             >
               <FolderPlus className="h-4 w-4" />
               New folder
@@ -404,11 +416,11 @@ export default function FileExplorer({
       </div>
 
       {isEmpty && (
-        <div className="card flex flex-1 flex-col items-center justify-center py-20 text-center">
-          <div className="mb-5 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500/20 to-coral-500/20 text-3xl ring-1 ring-inset ring-white/10">
-            📂
+        <div className="flex flex-1 flex-col items-center justify-center border-y border-ink-700 py-20 text-center">
+          <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-tint-sand text-ink-100">
+            <FolderOpen className="h-6 w-6" strokeWidth={1.25} />
           </div>
-          <h3 className="mb-1 text-lg font-semibold text-white">
+          <h3 className="mb-1 font-serif text-xl font-semibold tracking-tight text-ink-50">
             Nothing here yet
           </h3>
           <p className="text-sm text-ink-300">
@@ -420,24 +432,29 @@ export default function FileExplorer({
       )}
 
       {!isEmpty && view === "grid" && (
-        <div className="safe-stagger grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+        <div
+          key={listKey}
+          className="safe-stagger grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        >
           {folders.map((folder) => (
             <div key={folder.id} className="group relative">
               <Link
                 href={`/dashboard?folder=${folder.id}`}
                 className="card-interactive block p-4"
               >
-                <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-accent-500/20 to-coral-500/20 ring-1 ring-inset ring-white/10 transition-transform duration-300 ease-apple group-hover:scale-105">
-                  <Folder className="h-5 w-5 text-accent-200" />
-                </div>
-                <p className="truncate pr-6 text-sm font-medium text-white">
+                <FileTypeIcon
+                  folder
+                  size="md"
+                  className="mb-3 transition-transform duration-300 ease-apple group-hover:scale-105"
+                />
+                <p className="truncate pr-6 font-serif text-[15px] font-semibold tracking-tight text-ink-50">
                   {folder.name}
                 </p>
                 <p className="mt-0.5 text-xs text-ink-400">
                   {formatDate(folder.created_at)}
                 </p>
                 {folder.is_starred && (
-                  <Star className="absolute bottom-4 right-4 h-3.5 w-3.5 fill-coral-400 text-coral-400" />
+                  <Star className="absolute bottom-4 right-4 h-3.5 w-3.5 fill-accent-500 text-accent-500" />
                 )}
               </Link>
               <div
@@ -459,9 +476,11 @@ export default function FileExplorer({
             const cardBody = (
               <>
                 <div className="flex items-start justify-between gap-3">
-                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-white/[0.04] ring-1 ring-inset ring-white/[0.06] transition-transform duration-300 ease-apple group-hover:scale-105">
-                    <span className="text-2xl">{getFileIcon(file.type)}</span>
-                  </div>
+                  <FileTypeIcon
+                    mime={file.type}
+                    size="md"
+                    className="transition-transform duration-300 ease-apple group-hover:scale-105"
+                  />
                   <div
                     className="relative"
                     onClick={(event) => event.stopPropagation()}
@@ -475,14 +494,14 @@ export default function FileExplorer({
                   </div>
                 </div>
 
-                <p className="mt-3 truncate text-sm font-medium text-white">
+                <p className="mt-3 truncate font-serif text-[15px] font-semibold tracking-tight text-ink-50">
                   {file.name}
                 </p>
                 <p className="mt-0.5 text-xs text-ink-400">
                   {formatBytes(file.size)}
                 </p>
                 {file.is_starred && (
-                  <Star className="absolute bottom-4 right-4 h-3.5 w-3.5 fill-coral-400 text-coral-400" />
+                  <Star className="absolute bottom-4 right-4 h-3.5 w-3.5 fill-accent-500 text-accent-500" />
                 )}
               </>
             );
@@ -506,49 +525,41 @@ export default function FileExplorer({
       )}
 
       {!isEmpty && view === "list" && (
-        <div className="card overflow-hidden">
+        <div className="border-b border-ink-700">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-white/[0.06]">
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-ink-400">
-                  Name
-                </th>
-                <th className="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-ink-400 md:table-cell">
-                  Size
-                </th>
-                <th className="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-ink-400 lg:table-cell">
-                  Modified
-                </th>
-                <th className="w-12 px-4 py-3" />
+              <tr className="border-b-[1.5px] border-ink-50">
+                <th className={cn(TH, "text-ink-50")}>Name</th>
+                <th className={cn(TH, "hidden px-3 md:table-cell")}>Size</th>
+                <th className={cn(TH, "hidden px-3 lg:table-cell")}>Modified</th>
+                <th className="w-12 px-1 py-2.5" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/[0.04]">
+            <tbody key={listKey} className="safe-stagger divide-y divide-ink-700">
               {folders.map((folder) => (
                 <tr
                   key={folder.id}
-                  className="group transition-colors duration-200 ease-apple hover:bg-white/[0.03]"
+                  className="group transition-colors duration-200 ease-apple hover:bg-ink-800/60"
                 >
-                  <td className="px-4 py-3">
+                  <td className="px-1 py-2.5">
                     <Link
                       href={`/dashboard?folder=${folder.id}`}
-                      className="flex items-center gap-3"
+                      className="flex items-center gap-3 transition-transform duration-300 ease-apple group-hover:translate-x-1"
                     >
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-accent-500/20 to-coral-500/20 ring-1 ring-inset ring-white/10">
-                        <Folder className="h-4 w-4 text-accent-200" />
-                      </div>
-                      <span className="truncate font-medium text-white transition-colors group-hover:text-accent-200">
+                      <FileTypeIcon folder />
+                      <span className="truncate font-serif text-[15px] font-semibold tracking-tight text-ink-50">
                         {folder.name}
                       </span>
                       {folder.is_starred && (
-                        <Star className="h-3.5 w-3.5 shrink-0 fill-coral-400 text-coral-400" />
+                        <Star className="h-3.5 w-3.5 shrink-0 fill-accent-500 text-accent-500" />
                       )}
                     </Link>
                   </td>
-                  <td className="hidden px-4 py-3 text-ink-400 md:table-cell">—</td>
-                  <td className="hidden px-4 py-3 text-ink-400 lg:table-cell">
+                  <td className="hidden px-3 py-2.5 text-ink-400 md:table-cell">—</td>
+                  <td className="hidden px-3 py-2.5 text-ink-400 lg:table-cell">
                     {formatDate(folder.created_at)}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-1 py-2.5">
                     <div
                       className="relative flex justify-end"
                       onClick={(event) => event.stopPropagation()}
@@ -573,19 +584,15 @@ export default function FileExplorer({
                       if (canPreview) setPreviewFile(file);
                     }}
                     className={cn(
-                      "group transition-colors duration-200 ease-apple hover:bg-white/[0.03]",
+                      "group transition-colors duration-200 ease-apple hover:bg-ink-800/60",
                       canPreview && "cursor-pointer"
                     )}
                   >
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/[0.04] ring-1 ring-inset ring-white/[0.06]">
-                          <span className="text-base">
-                            {getFileIcon(file.type)}
-                          </span>
-                        </div>
+                    <td className="px-1 py-2.5">
+                      <div className="flex items-center gap-3 transition-transform duration-300 ease-apple group-hover:translate-x-1">
+                        <FileTypeIcon mime={file.type} />
                         <div className="min-w-0">
-                          <span className="block truncate font-medium text-white">
+                          <span className="block truncate font-serif text-[15px] font-semibold tracking-tight text-ink-50">
                             {file.name}
                           </span>
                           <span className="text-xs text-ink-400 md:hidden">
@@ -593,17 +600,17 @@ export default function FileExplorer({
                           </span>
                         </div>
                         {file.is_starred && (
-                          <Star className="h-3.5 w-3.5 shrink-0 fill-coral-400 text-coral-400" />
+                          <Star className="h-3.5 w-3.5 shrink-0 fill-accent-500 text-accent-500" />
                         )}
                       </div>
                     </td>
-                    <td className="hidden px-4 py-3 text-ink-300 md:table-cell">
+                    <td className="hidden px-3 py-2.5 text-ink-300 md:table-cell">
                       {formatBytes(file.size)}
                     </td>
-                    <td className="hidden px-4 py-3 text-ink-300 lg:table-cell">
+                    <td className="hidden px-3 py-2.5 text-ink-300 lg:table-cell">
                       {formatDate(file.created_at)}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-1 py-2.5">
                       <div
                         className="relative flex justify-end"
                         onClick={(event) => event.stopPropagation()}

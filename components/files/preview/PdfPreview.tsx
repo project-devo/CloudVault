@@ -12,7 +12,7 @@ export default function PdfPreview({ fileId, shareId, sharePassword }: Props) {
     : `/api/files/${fileId}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`;
 
   return (
-    <div className="h-full w-full bg-ink-950">
+    <div className="h-full w-full bg-ink-800/40">
       <iframe
         src={src}
         title="PDF preview"

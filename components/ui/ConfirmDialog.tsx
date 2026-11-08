@@ -53,10 +53,10 @@ export default function ConfirmDialog({
         aria-label={title}
       >
         <div className="p-6">
-          <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-coral-500/15 ring-1 ring-inset ring-coral-500/25">
+          <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-coral-500/10">
             <AlertTriangle className="h-5 w-5 text-coral-300" />
           </div>
-          <h2 className="mb-1.5 text-base font-semibold tracking-tight text-white">
+          <h2 className="mb-1.5 text-xl font-semibold tracking-tight text-ink-50">
             {title}
           </h2>
           <p className="text-sm leading-relaxed text-ink-300">{message}</p>
@@ -66,7 +66,7 @@ export default function ConfirmDialog({
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="btn-glass flex-1 disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-outline flex-1 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {cancelLabel}
             </button>
@@ -75,7 +75,7 @@ export default function ConfirmDialog({
               type="button"
               onClick={onConfirm}
               disabled={loading}
-              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-coral-600 to-coral-500 px-5 py-2.5 text-sm font-semibold text-white shadow-glow-coral transition-all duration-300 ease-apple hover:saturate-[1.05] active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-coral-300/60 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-[10px] bg-coral-500 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-apple hover:brightness-95 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-coral-500/40 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
               {loading ? "Working..." : confirmLabel}

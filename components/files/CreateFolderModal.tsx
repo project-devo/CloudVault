@@ -66,16 +66,16 @@ export default function CreateFolderModal({
         role="dialog"
         aria-modal="true"
       >
-        <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
-          <h2 className="flex items-center gap-2 text-base font-semibold tracking-tight text-white">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-accent-500/20 to-coral-500/20 ring-1 ring-inset ring-white/10">
+        <div className="flex items-center justify-between border-b border-ink-700 px-5 py-4">
+          <h2 className="flex items-center gap-2.5 text-xl font-semibold tracking-tight text-ink-50">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent-500/10">
               <FolderPlus className="h-3.5 w-3.5 text-accent-200" />
             </div>
             New Folder
           </h2>
           <button
             onClick={handleClose}
-            className="rounded-full p-2 text-ink-300 transition-all duration-200 ease-apple hover:bg-white/[0.06] hover:text-white"
+            className="rounded-full p-2 text-ink-300 transition-all duration-200 ease-apple hover:bg-ink-50/[0.06] hover:text-ink-50"
             aria-label="Close"
           >
             <X className="h-4 w-4" />
@@ -105,7 +105,7 @@ export default function CreateFolderModal({
             <button
               type="button"
               onClick={handleClose}
-              className="btn-glass flex-1"
+              className="btn-outline flex-1"
             >
               Cancel
             </button>

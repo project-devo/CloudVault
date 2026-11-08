@@ -2,253 +2,281 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Editorial Paper: warm paper and ink with one red accent.
+ * Tokens are space-separated RGB so Tailwind opacity modifiers work (bg-ink-900/60).
+ * Role-based scale: ink-50 is the strongest text, ink-700 the hairline, ink-950 the page.
+ */
 @layer base {
   :root {
-    --scrollbar-width: 6px;
-    --scrollbar-thumb: rgba(255, 255, 255, 0.08);
-    --scrollbar-track: transparent;
-    --gradient-aurora: linear-gradient(135deg, #7C5CFF 0%, #b57cff 40%, #ff7a59 100%);
-    --gradient-aurora-soft: linear-gradient(135deg, rgba(124, 92, 255, 0.18) 0%, rgba(255, 122, 89, 0.14) 100%);
+    color-scheme: light;
+
+    --ink-50: 29 29 31;
+    --ink-100: 52 50 47;
+    --ink-200: 74 71 67;
+    --ink-300: 107 103 96;
+    --ink-400: 118 113 106;
+    --ink-500: 154 149 140;
+    --ink-600: 201 195 184;
+    --ink-700: 231 226 217;
+    --ink-800: 242 238 230;
+    --ink-900: 255 255 255;
+    --ink-950: 250 248 244;
+
+    --accent-200: 176 18 38;
+    --accent-300: 200 20 45;
+    --accent-400: 214 26 50;
+    --accent-500: 229 30 56;
+    --accent-600: 200 20 45;
+
+    --coral-200: 162 28 20;
+    --coral-300: 179 38 30;
+    --coral-400: 196 48 40;
+    --coral-500: 217 52 43;
+
+    --success-300: 25 118 62;
+    --success-400: 33 135 72;
+    --success-500: 46 158 87;
+
+    --tint-sand: 239 228 210;
+    --tint-mist: 221 232 241;
+    --tint-sage: 225 234 216;
+    --tint-rose: 243 220 220;
+    --tint-lilac: 230 224 241;
+    --tint-butter: 244 236 201;
+
+    --shadow: 29 29 31;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+
+      --ink-50: 244 241 234;
+      --ink-100: 230 226 217;
+      --ink-200: 205 200 190;
+      --ink-300: 170 165 155;
+      --ink-400: 142 137 128;
+      --ink-500: 110 106 98;
+      --ink-600: 77 73 67;
+      --ink-700: 56 52 47;
+      --ink-800: 43 40 36;
+      --ink-900: 34 32 28;
+      --ink-950: 26 24 21;
+
+      --accent-200: 255 176 185;
+      --accent-300: 255 142 155;
+      --accent-400: 255 107 125;
+
+      --coral-200: 255 183 176;
+      --coral-300: 255 150 140;
+      --coral-400: 255 120 108;
+
+      --success-300: 134 218 160;
+      --success-400: 96 200 130;
+
+      --tint-sand: 58 50 38;
+      --tint-mist: 38 50 61;
+      --tint-sage: 43 53 38;
+      --tint-rose: 61 42 43;
+      --tint-lilac: 50 44 64;
+      --tint-butter: 59 54 34;
+
+      --shadow: 0 0 0;
+    }
   }
 
   * {
     scrollbar-width: thin;
-    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+    scrollbar-color: rgb(var(--ink-600)) transparent;
   }
 
   *::-webkit-scrollbar {
-    width: var(--scrollbar-width);
+    width: 8px;
+    height: 8px;
   }
 
   *::-webkit-scrollbar-track {
-    background: var(--scrollbar-track);
+    background: transparent;
   }
 
   *::-webkit-scrollbar-thumb {
-    background-color: var(--scrollbar-thumb);
+    background-color: rgb(var(--ink-600));
+    border: 2px solid transparent;
+    background-clip: content-box;
     border-radius: 9999px;
   }
 
   html,
   body {
-    background: #0A0A0F;
-    color: #ECEAF3;
+    background: rgb(var(--ink-950));
+    color: rgb(var(--ink-50));
   }
 
-  body {
-    background-image:
-      radial-gradient(1200px 600px at 80% -10%, rgba(124, 92, 255, 0.12), transparent 60%),
-      radial-gradient(900px 500px at -10% 10%, rgba(255, 122, 89, 0.08), transparent 60%);
-    background-attachment: fixed;
+  h1,
+  h2 {
+    @apply font-serif;
   }
 
-  /* Subtle film grain to soften the dark surfaces */
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.035;
-    mix-blend-mode: overlay;
-    background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  ::selection {
+    background: rgb(var(--accent-500) / 0.2);
   }
 }
 
 @layer components {
-  /* ── Buttons ───────────────────────────────────── */
+  /* ── Buttons: one filled red action, quiet outlines and text for the rest ── */
   .btn-primary {
-    @apply relative inline-flex items-center justify-center gap-2 rounded-full
-           bg-gradient-to-r from-accent-500 to-coral-500
-           px-5 py-2.5 text-sm font-semibold text-white
-           shadow-glow-accent
+    @apply inline-flex items-center justify-center gap-2 rounded-[10px]
+           bg-accent-500 px-4 py-2 text-sm font-semibold text-white
            transition-all duration-300 ease-apple
-           hover:shadow-[0_18px_40px_-10px_rgba(124,92,255,0.55)]
-           hover:saturate-[1.05]
-           active:scale-[0.98]
-           focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-300/60
-           disabled:cursor-not-allowed disabled:opacity-50 disabled:saturate-100;
-    background-size: 200% 100%;
-    background-position: 0% 50%;
-  }
-
-  .btn-primary:hover {
-    background-position: 100% 50%;
+           hover:bg-accent-600 active:scale-[0.98]
+           focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500/40
+           focus-visible:ring-offset-2 focus-visible:ring-offset-ink-950
+           disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-1.5 rounded-full
-           px-4 py-2 text-sm font-medium text-ink-200
-           transition-all duration-200 ease-apple
-           hover:bg-white/[0.06] hover:text-white
-           active:scale-[0.98]
-           focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-300/40;
+    @apply inline-flex items-center justify-center gap-1.5 rounded-[10px]
+           px-3 py-2 text-sm font-medium text-ink-200
+           transition-colors duration-200 ease-apple
+           hover:bg-ink-800 hover:text-ink-50 active:scale-[0.98]
+           focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500/30;
   }
 
-  .btn-glass {
-    @apply inline-flex items-center justify-center gap-2 rounded-full
-           border border-white/10 bg-white/[0.04] backdrop-blur-xl
-           px-4 py-2 text-sm font-medium text-ink-100
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-[10px]
+           border border-ink-600 px-4 py-2 text-sm font-medium text-ink-100
            transition-all duration-200 ease-apple
-           hover:bg-white/[0.08] hover:border-white/20
-           active:scale-[0.98];
+           hover:border-ink-500 hover:bg-ink-800 active:scale-[0.98]
+           focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500/30
+           disabled:cursor-not-allowed disabled:opacity-50;
   }
 
-  /* ── Inputs ───────────────────────────────────── */
+  /* ── Inputs ── */
   .input {
-    @apply w-full rounded-xl
-           border border-white/10 bg-white/[0.04] backdrop-blur-md
-           px-3.5 py-2.5 text-sm text-ink-50
-           placeholder:text-ink-400
+    @apply w-full rounded-[10px] border border-ink-600 bg-ink-900
+           px-3.5 py-2.5 text-sm text-ink-50 placeholder:text-ink-400
            transition-all duration-200 ease-apple
-           hover:bg-white/[0.06] hover:border-white/15
-           focus:outline-none focus:border-accent-400/60
-           focus:bg-white/[0.06]
-           focus:shadow-[0_0_0_4px_rgba(124,92,255,0.15)];
+           hover:border-ink-500
+           focus:border-accent-500 focus:outline-none focus:ring-4 focus:ring-accent-500/15;
   }
 
-  /* ── Surfaces ─────────────────────────────────── */
+  /* ── Surfaces: hairlines instead of shadows ── */
   .card {
-    @apply rounded-2xl border border-white/[0.06] bg-ink-900/60 backdrop-blur-xl
-           shadow-soft transition-all duration-300 ease-apple;
+    @apply rounded-xl border border-ink-700 bg-ink-900
+           transition-all duration-300 ease-apple;
   }
 
   .card-interactive {
-    @apply card hover:-translate-y-0.5 hover:border-white/15
-           hover:shadow-soft-lg hover:shadow-accent-500/5
-           active:translate-y-0 cursor-pointer;
+    @apply card cursor-pointer hover:-translate-y-px hover:border-ink-600
+           active:translate-y-0;
   }
 
-  .glass {
-    @apply border border-white/[0.08] bg-white/[0.04] backdrop-blur-2xl;
+  /* ── Headline line-by-line reveal (wrap each line: .reveal-line > span) ── */
+  .reveal-line {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.1em;
+  }
+  .reveal-line > span {
+    display: block;
+    animation: revealUp 1s cubic-bezier(0.2, 0.7, 0.1, 1) both;
+  }
+  .reveal-line:nth-child(2) > span {
+    animation-delay: 0.12s;
   }
 
-  /* ── Aurora text gradient ─────────────────────── */
-  .aurora-text {
-    background: linear-gradient(135deg, #b7a0fc 0%, #7C5CFF 35%, #ff7a59 100%);
-    background-size: 200% 200%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    animation: auroraShift 14s ease-in-out infinite;
-  }
-
-  .aurora-bg {
-    background: linear-gradient(135deg, #7C5CFF 0%, #b57cff 40%, #ff7a59 100%);
-    background-size: 200% 200%;
-    animation: auroraShift 14s ease-in-out infinite;
-  }
-
-  /* ── Stagger children (used by lists / grids) ─── */
+  /* ── Stagger children (grids, table bodies). `backwards` so nothing keeps a
+        transform, and menus inside rows are never trapped under later rows. ── */
   .safe-stagger > * {
-    animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: slideUp 0.7s cubic-bezier(0.2, 0.7, 0.1, 1) backwards;
   }
-  .safe-stagger > *:nth-child(1) { animation-delay: 30ms; }
-  .safe-stagger > *:nth-child(2) { animation-delay: 60ms; }
-  .safe-stagger > *:nth-child(3) { animation-delay: 90ms; }
-  .safe-stagger > *:nth-child(4) { animation-delay: 120ms; }
-  .safe-stagger > *:nth-child(5) { animation-delay: 150ms; }
-  .safe-stagger > *:nth-child(6) { animation-delay: 180ms; }
-  .safe-stagger > *:nth-child(7) { animation-delay: 210ms; }
-  .safe-stagger > *:nth-child(8) { animation-delay: 240ms; }
-  .safe-stagger > *:nth-child(9) { animation-delay: 270ms; }
-  .safe-stagger > *:nth-child(10) { animation-delay: 300ms; }
-  .safe-stagger > *:nth-child(n+11) { animation-delay: 330ms; }
+  .safe-stagger > *:nth-child(1) { animation-delay: 40ms; }
+  .safe-stagger > *:nth-child(2) { animation-delay: 90ms; }
+  .safe-stagger > *:nth-child(3) { animation-delay: 140ms; }
+  .safe-stagger > *:nth-child(4) { animation-delay: 190ms; }
+  .safe-stagger > *:nth-child(5) { animation-delay: 240ms; }
+  .safe-stagger > *:nth-child(6) { animation-delay: 290ms; }
+  .safe-stagger > *:nth-child(7) { animation-delay: 340ms; }
+  .safe-stagger > *:nth-child(8) { animation-delay: 390ms; }
+  .safe-stagger > *:nth-child(9) { animation-delay: 440ms; }
+  .safe-stagger > *:nth-child(10) { animation-delay: 490ms; }
+  .safe-stagger > *:nth-child(n+11) { animation-delay: 540ms; }
 
-  /* ── Shimmer (for progress) ───────────────────── */
+  /* ── Progress sheen (sits over a solid fill) ── */
   .shimmer {
     background: linear-gradient(
       90deg,
       transparent 0%,
-      rgba(255, 255, 255, 0.18) 50%,
+      rgb(255 255 255 / 0.35) 50%,
       transparent 100%
     );
     background-size: 200% 100%;
     animation: shimmer 2.2s linear infinite;
   }
 
-  /* ── Segmented control (grid/list toggle) ─────── */
-  .segmented {
-    @apply inline-flex items-center gap-0.5 rounded-full
-           border border-white/[0.06] bg-white/[0.04] backdrop-blur-xl
-           p-0.5;
+  /* ── Segmented controls (grid/list toggle, markdown preview/raw) ── */
+  .segmented,
+  .segmented-text {
+    @apply inline-flex items-center gap-0.5 rounded-[10px]
+           border border-ink-700 bg-ink-900 p-0.5;
   }
   .segmented button {
-    @apply inline-flex h-7 w-7 items-center justify-center rounded-full
-           text-ink-300 transition-all duration-200 ease-apple
-           hover:text-white;
-  }
-  .segmented button[data-active="true"] {
-    @apply bg-white/10 text-white shadow-soft;
-  }
-
-  /* ── Segmented control with text ──────────────── */
-  .segmented-text {
-    @apply inline-flex items-center gap-0.5 rounded-full
-           border border-white/[0.06] bg-white/[0.04] backdrop-blur-xl
-           p-0.5;
+    @apply inline-flex h-7 w-7 items-center justify-center rounded-lg
+           text-ink-400 transition-all duration-200 ease-apple
+           hover:text-ink-50;
   }
   .segmented-text button {
-    @apply inline-flex h-7 px-3.5 items-center justify-center rounded-full
-           text-ink-300 transition-all duration-200 ease-apple
-           hover:text-white font-medium text-xs;
+    @apply inline-flex h-7 items-center justify-center rounded-lg px-3.5
+           text-xs font-medium text-ink-400
+           transition-all duration-200 ease-apple hover:text-ink-50;
   }
+  .segmented button[data-active="true"],
   .segmented-text button[data-active="true"] {
-    @apply bg-white/10 text-white shadow-soft;
+    @apply bg-ink-800 text-ink-50;
   }
 
-  /* ── Active sidebar pill (animated highlight) ── */
+  /* ── Sidebar item: quiet text with a red marker when active ── */
   .nav-pill {
-    @apply relative flex items-center gap-3 rounded-xl
-           px-3 py-2 text-sm font-medium
-           text-ink-300
-           transition-all duration-200 ease-apple
-           hover:bg-white/[0.05] hover:text-white;
+    @apply relative flex items-center gap-3 rounded-lg px-3 py-2
+           text-sm font-medium text-ink-300
+           transition-colors duration-200 ease-apple
+           hover:bg-ink-800 hover:text-ink-50;
   }
   .nav-pill[data-active="true"] {
-    @apply text-white;
+    @apply bg-ink-800 text-ink-50;
   }
   .nav-pill[data-active="true"]::before {
     content: "";
     position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: linear-gradient(
-      135deg,
-      rgba(124, 92, 255, 0.22),
-      rgba(255, 122, 89, 0.14)
-    );
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-    z-index: 0;
-    animation: fadeIn 0.3s ease-apple both;
-  }
-  .nav-pill > * {
-    position: relative;
-    z-index: 1;
+    left: 0;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    width: 2px;
+    border-radius: 2px;
+    background: rgb(var(--accent-500));
+    animation: fadeIn 0.3s ease both;
   }
 
-  /* ── Drop zone ────────────────────────────────── */
+  /* ── Drop zone ── */
   .dropzone {
-    @apply relative rounded-2xl border-2 border-dashed border-white/10
-           bg-white/[0.02] p-8 text-center
-           transition-all duration-300 ease-apple
-           hover:border-accent-400/40 hover:bg-accent-500/[0.04];
+    @apply relative rounded-xl border border-dashed border-ink-600 bg-ink-900
+           p-8 text-center transition-all duration-300 ease-apple
+           hover:border-accent-500/60 hover:bg-accent-500/[0.04];
   }
   .dropzone[data-active="true"] {
-    @apply border-accent-400 bg-accent-500/[0.06] shadow-glow-accent;
+    @apply border-accent-500 bg-accent-500/[0.06];
   }
 
-  /* ── Modal / sheet ───────────────────────────── */
+  /* ── Modal / sheet ── */
   .sheet-backdrop {
-    @apply fixed inset-0 z-50 flex items-end justify-center p-3
-           bg-black/50 backdrop-blur-md
-           animate-fade-in sm:items-center sm:p-4;
+    @apply fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-3
+           backdrop-blur-[3px] animate-fade-in sm:items-center sm:p-4;
   }
   .sheet {
-    @apply relative w-full max-w-xl overflow-hidden rounded-3xl
-           border border-white/[0.08] bg-ink-900/80 backdrop-blur-2xl
-           shadow-soft-lg animate-slide-up
-           max-h-[90vh] flex flex-col;
+    @apply relative flex max-h-[90vh] w-full max-w-xl flex-col overflow-hidden
+           rounded-2xl border border-ink-700 bg-ink-900 shadow-soft-lg
+           animate-slide-up;
   }
   .sheet-sm {
     @apply sheet max-w-sm;
@@ -262,12 +290,42 @@
   .text-pretty {
     text-wrap: pretty;
   }
-  .ring-focus {
-    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-300/60;
-  }
 }
 
-/* ── Accessibility: motion + transparency reductions ── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes revealUp {
+  from { transform: translateY(105%); }
+  to { transform: none; }
+}
+@keyframes pulseSoft {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+@keyframes bar {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(300%); }
+}
+
+/* ── Accessibility: motion reduction ── */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -276,22 +334,5 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
-  }
-}
-
-@media (prefers-reduced-transparency: reduce) {
-  .glass,
-  .card,
-  .card-interactive,
-  .input,
-  .btn-glass,
-  .segmented,
-  .sheet,
-  .nav-pill[data-active="true"]::before {
-    background: rgb(24 24 38 / 0.95) !important;
-    backdrop-filter: none !important;
-  }
-  body::before {
-    display: none;
   }
 }
